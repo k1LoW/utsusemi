@@ -51,6 +51,13 @@ functions:
           path: /in
           method: get
           integration: lambda-proxy
+  purge:
+    handler: src/handler/purge.handler
+    events:
+      - http:
+          path: /kai
+          method: get
+          integration: lambda-proxy
   worker:
     handler: src/handler/worker.handler
     name: ${self:service}-${self:provider.stage}-worker
