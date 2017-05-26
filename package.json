@@ -12,6 +12,7 @@
   "author": "k1LoW <k1lowxb@gmail.com> (https://github.com/k1LoW)",
   "license": "MIT",
   "dependencies": {
+    "css": "^2.2.1",
     "js-yaml": "^3.8.4",
     "jsdom": "^11.0.0",
     "moment": "^2.18.1",

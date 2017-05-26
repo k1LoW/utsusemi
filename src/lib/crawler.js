@@ -26,6 +26,7 @@ const queueName = serverlessConfig.resources.Resources.Channel.Properties.QueueN
       .replace('${self:provider.stage}', serverlessConfig.provider.stage);
 const request = require('request-promise-native');
 const jsdom = require('jsdom');
+const css = require('css');
 const url = require('url');
 const querystring = require('querystring');
 const { JSDOM } = jsdom;
@@ -65,23 +66,24 @@ const crawler = {
                             return true;
                         }
                         let headers = {};
-                        // expiresを過ぎていなかったらS3からデータを取得して利用する            
+                        // expiresを過ぎていなかったらS3からデータを取得して利用する
                         if (status.expires > moment().unix()){
-                            if (status.contentType.match(/html/)) {
+                            if (status.contentType.match(/(html|css)/)) {
                                 lambda.invoke({
                                     FunctionName: functionS3Name,
                                     InvocationType: 'Event',
                                     Payload: JSON.stringify({
                                         path: path,
-                                        depth: depth - 1,
-                                        uuid: uuid
+                                        depth: depth,
+                                        uuid: uuid,
+                                        contentType: status.contentType
                                     })
                                 }).promise().then((data) => {
                                 }).catch((err) => {
                                     console.log(err);
                                 });
                             }
-                            // htmlコンテンツでない場合は何もしない
+                            // html/cssコンテンツでない場合は何もしない
                             return true;
                         }
                         // headersにetagからIf-None-Matchを埋め込む
@@ -97,7 +99,7 @@ const crawler = {
                             headers: headers,
                             resolveWithFullResponse: true
                         };
-                        return request(options);            
+                        return request(options);
                     })
                     .catch((err) => {
                         // status objectがない
@@ -111,7 +113,7 @@ const crawler = {
                             resolveWithFullResponse: true
                         };
                         return request(options);
-                    })    
+                    })
                     .then((res) => {
                         if (res === true) {
                             return true;
@@ -139,24 +141,24 @@ const crawler = {
                             }
                         }
                         if (res.statusCode === 304) {
-                            console.log(res.statusCode);
                             // 304 Not Modifiedを受け取ったらS3からデータを取得して利用する
-                            if (contentType.match(/html/)) {
+                            if (contentType.match(/(html|css)/)) {
                                 lambda.invoke({
                                     FunctionName: functionS3Name,
                                     InvocationType: 'Event',
                                     Payload: JSON.stringify({
                                         path: path,
-                                        depth: depth - 1,
-                                        uuid: uuid
+                                        depth: depth,
+                                        uuid: uuid,
+                                        contentType: contentType
                                     })
-                                }).promise().then((data) => {
+                                }).promise().then(() => {
                                 }).catch((err) => {
                                     console.log(err);
                                 });
                                 return true;
                             } else {
-                                // htmlコンテンツでない場合は何もしない
+                                // html, cssコンテンツでない場合は何もしない
                                 return true;
                             }
                         }
@@ -173,8 +175,8 @@ const crawler = {
                         const queueParams = {
                             QueueName: queueName
                         };
-                        
-                        if (!contentType.match(/html/)) {
+
+                        if (!contentType.match(/(html|css)/)) {
                             const objectParams = {
                                 Bucket: bucketName,
                                 Key: bucketKey,
@@ -188,11 +190,19 @@ const crawler = {
                                 s3.putObject(objectParams).promise()
                             ]);
                         }
+                        let body = '';
+                        let filtered = [];
+                        let results = ['',[]];
+                        if (contentType.match(/html/)) {
+                            results = crawler.scrapeHTML(res.body.toString(), path);
+                            body = results[0];
+                            filtered = results[1];
+                        } else if (contentType.match(/css/)) {
+                            results = crawler.scrapeCSS(res.body.toString(), path);
+                            body = results[0];
+                            filtered = results[1];
+                        }
 
-                        const results = crawler.scrape(res.body, path);
-                        const body = results[0];
-                        const filtered = results[1];
-                        
                         const objectParams = {
                             Bucket: bucketName,
                             Key: bucketKey,
@@ -221,7 +231,10 @@ const crawler = {
                     });
             });
     },
-    s3walk: (path, depth, uuid) => {
+    s3walk: (path, depth, uuid, contentType) => {
+        if (!contentType.match(/(html|css)/)) {
+            throw new 's3walk support only HTML or CSS.';
+        }
         return Promise.resolve()
             .then(() => {
                 if (depth == 0 || !depth) {
@@ -235,24 +248,28 @@ const crawler = {
                         message: 'Bad Request'
                     }];
                 }
-                
+
                 const bucketKey = crawler.bucketKey(path);
-                
+
                 const objectParams = {
                     Bucket: bucketName,
                     Key: bucketKey
                 };
-                
+
                 return s3.getObject(objectParams).promise()
                     .then((data) => {
-                        const results = crawler.scrape(data.Body.toString(), path);
-                        // const body = results[0];
+                        let results = ['', []];
+                        if (contentType.match(/html/)) {
+                            results = crawler.scrapeHTML(data.Body.toString(), path);
+                        } else if (contentType.match(/css/)) {
+                            results = crawler.scrapeCSS(data.Body.toString(), path);
+                        }
                         const filtered = results[1];
 
                         const queueParams = {
                             QueueName: queueName
                         };
-                        
+
                         return Promise.all([
                             filtered,
                             sqs.getQueueUrl(queueParams).promise()
@@ -273,8 +290,8 @@ const crawler = {
                     });
             });
     },
-    scrape: (html, path) => {
-        const dom = new JSDOM(html);
+    scrapeHTML: (htmlStr, path) => {
+        const dom = new JSDOM(htmlStr);
         const document = dom.window.document;
 
         let links = [];
@@ -283,27 +300,73 @@ const crawler = {
             if (el.href && url.resolve(targetHost, el.href).match(targetHost)) {
                 let absolute = url.resolve(targetHost + path, el.href).replace(targetHost,'');
                 el.href = crawler.utsusemiPath(absolute);
-                links.push(absolute);
+                links.push(crawler.realPath(absolute));
             }
         });
-        document.querySelectorAll('img,script').forEach((el) => {
+        document.querySelectorAll('img,script,input').forEach((el) => {
             if (el.src && url.resolve(targetHost, el.src).match(targetHost)) {
                 let absolute = url.resolve(targetHost + path, el.src).replace(targetHost,'');
                 el.src = crawler.utsusemiPath(absolute);
-                links.push(absolute);
+                links.push(crawler.realPath(absolute));
             }
         });
 
         const filtered = links.filter(function(element, index, array) {
             return array.indexOf(element) === index && element !== path;
         });
-
         return [dom.serialize(), filtered];
+    },
+    scrapeCSS: (cssStr, path) => {
+        let obj = css.parse(cssStr);
+        if (obj.type !== 'stylesheet') {
+            return [cssStr, []];
+        }
+        let links = [];
+        obj.stylesheet.rules.map((rule) => {
+            let results = crawler.utsusemiRule(rule, path);
+            links = links.concat(results[1]);
+            return results[0];
+        });
+
+        const filtered = links.filter(function(element, index, array) {
+            return array.indexOf(element) === index && element !== path;
+        });
+
+        return [css.stringify(obj), filtered];
+    },
+    utsusemiRule: (rule, path) => {
+        let links = [];
+        if (rule.type === 'media') {
+            rule.rules.map((r) => {
+                let results = crawler.utsusemiRule(r, path);
+                links = links.concat(results[1]);
+                return results[0];
+            });
+            return [rule, links];
+        }
+        if (rule.type !== 'rule') {
+            return [rule, links];
+        }
+        rule.declarations.map((d) => {
+            if (!d.value || !d.value.match(/url\(['"]*([^'")]+)['"]*\)/)) {
+                return d;
+            }
+            const matches = d.value.match(/url\(['"]*([^)'"]+)['"]*\)/);
+            let absolute = url.resolve(targetHost + path, matches[1]).replace(targetHost,'');
+            d.value = d.value.replace(/url\(['"]*([^)'"]+)['"]*\)/, `url(${crawler.utsusemiPath(absolute)})`);
+            links.push(crawler.realPath(absolute));
+            return d;
+        });
+        return [rule, links];
     },
     queue: (path, depth, uuid, queueUrl, filtered) => {
         let queues = [];
-        
         filtered.forEach((path) => {
+            const cache = `/tmp/${crawler.utsusemiPath(path).replace(/\//g, '__dir__')}-${(depth - 1)}-${uuid}`;
+            if (crawler.isFileExist(cache)) {
+                // cache hit
+                return;
+            }
             const params = {
                 MessageBody: JSON.stringify({
                     path: path,
@@ -313,8 +376,8 @@ const crawler = {
                 QueueUrl: queueUrl
             };
             queues.push(sqs.sendMessage(params).promise());
+            fs.writeFile(cache, 'cache');
         });
-        
         return Promise.all(queues);
     },
     bucketKey: (path) => {
@@ -323,22 +386,55 @@ const crawler = {
             bucketKey = 'index.html';
         }
         if (bucketKey.match(/\/$/)) {
-            bucketKey = path + 'index.html';
+            bucketKey = bucketKey + 'index.html';
         }
         return bucketKey;
     },
     utsusemiPath: (path) => {
-        if (!path.match(/\?/)) {
+        path = path.replace(/\/\//g, '/');
+        if (!path.match(/\?/) || path.match(/-utsusemi-/)) {
             return path;
         }
-        const parsed = url.parse(path, true, false);
+        const parsed = url.parse(path, true, true);
         let pathArray = parsed.pathname.split('.');
-        const ext = pathArray.pop();
-        let utsusemiPath = pathArray.join('.');
-        Object.keys(parsed.query).forEach(function(key) {
-            utsusemiPath += ['', key, this[key]].join('-');
-        }, parsed.query);
+        let ext = null;
+        if (pathArray.length > 1) {
+            ext = pathArray.pop();
+        }
+        const hex = new Buffer(JSON.stringify(parsed.query), 'utf8').toString('hex');
+        let utsusemiPath = pathArray.join('.') + '-utsusemi-' + hex;
+        if (!ext) {
+            return decodeURIComponent(utsusemiPath);
+        }
         return decodeURIComponent([utsusemiPath, ext].join('.'));
+    },
+    realPath: (utsusemiPath) => {
+        if (!utsusemiPath.match(/-utsusemi-/)) {
+            return utsusemiPath;
+        }
+        let pathArray = utsusemiPath.split('.');
+        let ext = null;
+        if (pathArray.length > 1) {
+            ext = pathArray.pop();
+        }
+        let utsusemiPathFront = pathArray.join('.');
+        let splitted = utsusemiPathFront.split('-utsusemi-');
+        const query = JSON.parse(new Buffer(splitted[1], 'hex').toString('utf8'));
+        if (!ext) {
+            return splitted[0] + '?' + querystring.stringify(query);
+        }
+        return splitted[0] + '.' + ext + '?' + querystring.stringify(query);
+    },
+    isFileExist: (file) => {
+        try {
+            fs.accessSync(file);
+            return true;
+        } catch (err) {
+            if(err.code === 'ENOENT') {
+                return false;
+            }
+        }
+        return false;
     }
 };
 

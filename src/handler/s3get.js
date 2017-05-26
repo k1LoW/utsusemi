@@ -26,8 +26,9 @@ module.exports.handler = (event, context, cb) => {
     const path = event.path;
     const depth = event.depth;
     const uuid = event.uuid;
+    const contentType = event.contentType;
 
-    crawler.s3walk(path, depth, uuid)
+    crawler.s3walk(path, depth, uuid, contentType)
         .then((data) => {
             const response = {
                 statusCode: data[0],
