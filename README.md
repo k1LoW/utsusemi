@@ -1,1 +1,3 @@
-# utsusemi [ 空蝉 ]
+# utsusemi
+
+utsusemi = "空蝉"
