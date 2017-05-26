@@ -338,7 +338,7 @@ const crawler = {
         Object.keys(parsed.query).forEach(function(key) {
             utsusemiPath += ['', key, this[key]].join('-');
         }, parsed.query);
-        return [utsusemiPath, ext].join('.') ;
+        return decodeURIComponent([utsusemiPath, ext].join('.'));
     }
 };
 
