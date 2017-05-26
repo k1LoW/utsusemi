@@ -1,0 +1,109 @@
+service: utsusemi
+
+custom:
+  config: ${file(./config.yml)}
+
+frameworkVersion: ">=1.13.2 <2.0.0"
+
+provider:
+  name: aws
+  runtime: nodejs6.10
+  stage: v0
+  region: ${self:custom.config.region}
+  timeout: 10
+  cfLogs: true
+  apiKey: false
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - "s3:*"
+      Resource:
+        - { "Fn::Join" : ["", ["arn:aws:s3:::", "${self:custom.config.bucketName}"] ] }
+        - { "Fn::Join" : ["", ["arn:aws:s3:::", "${self:custom.config.bucketName}", "/*"] ] }
+    - Effect: Allow
+      Action:
+        - "lambda:InvokeFunction"
+        - "lambda:InvokeAsync"
+      Resource:
+        - "arn:aws:lambda:${self:provider.region}:*:function:${self:service}-${self:provider.stage}-*"
+    - Effect: Allow
+      Action:
+        - "sqs:*"
+      Resource:
+        - '*'
+        
+package:
+  include:
+    - serverless.yml
+    - config.yml
+    - src/**
+  exclude:
+    - .git/**
+    - doc/**
+    - node_modules/aws-sdk/**
+    
+functions:
+  starter:
+    handler: src/handler/starter.handler
+    name: ${self:service}-${self:provider.stage}-starter
+    events:
+      - http:
+          path: /start
+          method: get
+          integration: lambda-proxy
+  worker:
+    handler: src/handler/worker.handler
+    name: ${self:service}-${self:provider.stage}-worker
+  s3get:
+    handler: src/handler/s3get.handler
+    name: ${self:service}-${self:provider.stage}-s3get
+  # test:
+  #   handler: src/handler/test.handler
+  #   events:
+  #     - http:
+  #         path: /test
+  #         method: get
+  #         integration: lambda-proxy
+
+resources:
+  Resources:
+    HostingBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:custom.config.bucketName}
+        AccessControl: Private
+        WebsiteConfiguration:
+          IndexDocument: index.html
+          ErrorDocument: error.html
+    HostingBucketPolicy:
+      Type: "AWS::S3::BucketPolicy"
+      Properties: 
+        Bucket: { Ref: HostingBucket }
+        PolicyDocument:
+          Statement: 
+            - 
+              Action: 
+                - "s3:GetObject"
+              Effect: "Allow"
+              Resource: 
+                Fn::Join: 
+                  - ""
+                  - 
+                    - "arn:aws:s3:::"
+                    - 
+                      Ref: HostingBucket
+                    - "/*"
+              Principal: "*"
+    Channel:
+      Type: "AWS::SQS::Queue"
+      Properties:
+        DelaySeconds: 0
+        MaximumMessageSize: 262144
+        MessageRetentionPeriod: 3600
+        QueueName: ${self:service}-${self:provider.stage}-Channel
+        ReceiveMessageWaitTimeSeconds: 0
+        VisibilityTimeout: 30
+  Outputs:
+    WebsiteURL:
+      Value: { "Fn::GetAtt" : [ HostingBucket, WebsiteURL ] }
+      Description: "URL for website hosted on S3"

@@ -1,0 +1,7 @@
+---
+region: ap-northeast-1
+targetHost: https://opslet.com
+bucketName: spider.opslet.com
+workerProcess: 2
+workerDelay: 100
+

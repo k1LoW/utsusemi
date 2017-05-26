@@ -1,0 +1,26 @@
+{
+  "name": "utsusemi",
+  "version": "0.1.0",
+  "description": "Crawler for S3 Static Web Hosting",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "crawler"
+  ],
+  "author": "k1LoW <k1lowxb@gmail.com> (https://github.com/k1LoW)",
+  "license": "MIT",
+  "dependencies": {
+    "js-yaml": "^3.8.4",
+    "jsdom": "^11.0.0",
+    "moment": "^2.18.1",
+    "request": "^2.81.0",
+    "request-promise-native": "^1.0.4",
+    "serverless": "^1.13.2",
+    "uuid": "^3.0.1"
+  },
+  "devDependencies": {
+    "aws-sdk": "^2.55.0"
+  }
+}
