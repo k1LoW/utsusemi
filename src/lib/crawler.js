@@ -351,10 +351,13 @@ const crawler = {
             if (!d.value || !d.value.match(/url\(['"]*([^'")]+)['"]*\)/)) {
                 return d;
             }
-            const matches = d.value.match(/url\(['"]*([^)'"]+)['"]*\)/);
-            let absolute = url.resolve(targetHost + path, matches[1]).replace(targetHost,'');
-            d.value = d.value.replace(/url\(['"]*([^)'"]+)['"]*\)/, `url(${crawler.utsusemiPath(absolute)})`);
-            links.push(crawler.realPath(absolute));
+            const matches = d.value.match(/url\(['"]*([^)'"]+)['"]*\)/g);
+            matches.forEach((m) => {
+                let urlp = m.replace(/.*url\(['"]*([^)'"]+)['"]*\).*/, '$1');
+                let absolute = url.resolve(targetHost + path, urlp).replace(targetHost,'');
+                d.value = d.value.replace(new RegExp(`${urlp}`), crawler.utsusemiPath(absolute));
+                links.push(crawler.realPath(absolute));
+            });
             return d;
         });
         return [rule, links];
