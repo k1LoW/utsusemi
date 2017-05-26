@@ -114,11 +114,12 @@ const crawler = {
                         };
                         return request(options);
                     })
+                    .catch((err) => {
+                        console.log(err);
+                        return true;
+                    })
                     .then((res) => {
                         if (res === true) {
-                            return true;
-                        }
-                        if (res.statusCode >= 400) {
                             return true;
                         }
                         let contentType = 'text/html';
