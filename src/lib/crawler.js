@@ -16,7 +16,7 @@ const lambda = new aws.Lambda({
 const sqs = new aws.SQS({
     apiVersion: '2012-11-05'
 });
-const functionS3Name = serverlessConfig.functions.s3get.name
+const functionS3Name = serverlessConfig.functions.s3worker.name
       .replace('${self:service}', serverlessConfig.service)
       .replace('${self:provider.stage}', serverlessConfig.provider.stage);
 const targetHost = config.targetHost;

@@ -54,9 +54,9 @@ functions:
   worker:
     handler: src/handler/worker.handler
     name: ${self:service}-${self:provider.stage}-worker
-  s3get:
-    handler: src/handler/s3get.handler
-    name: ${self:service}-${self:provider.stage}-s3get
+  s3worker:
+    handler: src/handler/s3worker.handler
+    name: ${self:service}-${self:provider.stage}-s3worker
   # test:
   #   handler: src/handler/test.handler
   #   events:
