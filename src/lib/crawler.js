@@ -46,13 +46,7 @@ const crawler = {
                     }];
                 }
 
-                let bucketKey = path.replace(/^\//, '');
-                if (bucketKey === '') {
-                    bucketKey = 'index.html';
-                }
-                if (bucketKey.match(/\/$/)) {
-                    bucketKey = path + 'index.html';
-                }
+                const bucketKey = crawler.bucketKey(path);
 
                 const objectParams = {
                     Bucket: bucketName,
@@ -242,13 +236,7 @@ const crawler = {
                     }];
                 }
                 
-                let bucketKey = path.replace(/^\//, '');
-                if (bucketKey === '') {
-                    bucketKey = 'index.html';
-                }
-                if (bucketKey.match(/\/$/)) {
-                    bucketKey = path + 'index.html';
-                }
+                const bucketKey = crawler.bucketKey(path);
                 
                 const objectParams = {
                     Bucket: bucketName,
@@ -294,14 +282,14 @@ const crawler = {
         document.querySelectorAll('a,link').forEach((el) => {
             if (el.href && url.resolve(targetHost, el.href).match(targetHost)) {
                 let absolute = url.resolve(targetHost + path, el.href).replace(targetHost,'');
-                el.href = absolute;
+                el.href = crawler.utsusemiPath(absolute);
                 links.push(absolute);
             }
         });
         document.querySelectorAll('img,script').forEach((el) => {
             if (el.src && url.resolve(targetHost, el.src).match(targetHost)) {
                 let absolute = url.resolve(targetHost + path, el.src).replace(targetHost,'');
-                el.src = absolute;
+                el.src = crawler.utsusemiPath(absolute);
                 links.push(absolute);
             }
         });
@@ -328,6 +316,29 @@ const crawler = {
         });
         
         return Promise.all(queues);
+    },
+    bucketKey: (path) => {
+        let bucketKey = crawler.utsusemiPath(path).replace(/^\//, '');
+        if (bucketKey === '') {
+            bucketKey = 'index.html';
+        }
+        if (bucketKey.match(/\/$/)) {
+            bucketKey = path + 'index.html';
+        }
+        return bucketKey;
+    },
+    utsusemiPath: (path) => {
+        if (!path.match(/\?/)) {
+            return path;
+        }
+        const parsed = url.parse(path, true, false);
+        let pathArray = parsed.pathname.split('.');
+        const ext = pathArray.pop();
+        let utsusemiPath = pathArray.join('.');
+        Object.keys(parsed.query).forEach(function(key) {
+            utsusemiPath += ['', key, this[key]].join('-');
+        }, parsed.query);
+        return [utsusemiPath, ext].join('.') ;
     }
 };
 
