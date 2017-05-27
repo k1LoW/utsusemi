@@ -58,19 +58,19 @@ functions:
           path: /kai
           method: get
           integration: lambda-proxy
+  remove:
+    handler: src/handler/remove.handler
+    events:
+      - http:
+          path: /metsu
+          method: get
+          integration: lambda-proxy
   worker:
     handler: src/handler/worker.handler
     name: ${self:service}-${self:provider.stage}-worker
   s3worker:
     handler: src/handler/s3worker.handler
     name: ${self:service}-${self:provider.stage}-s3worker
-  # test:
-  #   handler: src/handler/test.handler
-  #   events:
-  #     - http:
-  #         path: /test
-  #         method: get
-  #         integration: lambda-proxy
 
 resources:
   Resources:
