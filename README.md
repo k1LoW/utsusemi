@@ -2,7 +2,7 @@
 
 utsusemi = "空蝉"
 
-Static web site generator on AWS managed services.
+A tool to generate a static website by crawling the original site.
 
 ## Architecture
 
