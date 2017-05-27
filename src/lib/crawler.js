@@ -429,9 +429,9 @@ const crawler = {
         }
         return splitted[0] + '.' + ext + '?' + querystring.stringify(query);
     },
-    isFileExist: (file) => {
+    isFileExist: (path) => {
         try {
-            fs.accessSync(file);
+            fs.accessSync(path);
             return true;
         } catch (err) {
             if(err.code === 'ENOENT') {
