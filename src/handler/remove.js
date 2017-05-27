@@ -11,7 +11,6 @@ const s3 = new aws.S3({
 const bucketName = config.bucketName;
 
 module.exports.handler = (event, context, cb) => {
-    console.log(event);
     const path = event.queryStringParameters && event.queryStringParameters.hasOwnProperty('path') ? event.queryStringParameters.path : null;
 
     const recursiveDeleteObjects = (params) => {

@@ -51,7 +51,7 @@ $ curl https://xxxxxxxxxx.execute-api.ap-northeast-1.amazonaws.com/v0/in?path=/&
 
 And, access `UtsusemiWebsiteURL`.
 
-### Cancel crawling `/cancel`
+### Purge crawling queue `/purge`
 
 ### Delete object of utsusemi content `/delete?path={objectPrefix}`
 

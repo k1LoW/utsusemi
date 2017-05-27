@@ -56,19 +56,20 @@ const crawler = {
 
                 return s3.getObjectTagging(objectParams).promise()
                     .then((data) => {
-                        // Objectが存在
+                        // Object exist
                         let status = {};
                         data.TagSet.forEach((tag) => {
                             status[tag.Key] = tag.Value;
                         });
-                        // uuid と depthを確認してこれ以上走査が必要ないと判断したら何もしない
+                        // Check uuid & depth
                         if (status.uuid === uuid && status.depth >= depth) {
                             return true;
                         }
                         let headers = {};
-                        // expiresを過ぎていなかったらS3からデータを取得して利用する
+                        // Check expires
                         if (status.expires > moment().unix()){
                             if (status.contentType.match(/(html|css)/)) {
+                                // HTML or CSS
                                 lambda.invoke({
                                     FunctionName: functionS3Name,
                                     InvocationType: 'Event',
@@ -83,14 +84,13 @@ const crawler = {
                                     console.log(err);
                                 });
                             }
-                            // html/cssコンテンツでない場合は何もしない
                             return true;
                         }
-                        // headersにetagからIf-None-Matchを埋め込む
+                        // Set If-None-Match to headers by etag
                         if (status.etag !== '-') {
                             headers['If-None-Match'] = status.etag;
                         }
-                        // headersにlastModifiedからIf-Modified-Sinceを埋め込む
+                        // Set If-Modified-Since to headers by lastModified
                         headers['If-Modified-Since'] = moment(status.lastModified, 'X').toDate().toUTCString();
                         const options = {
                             method: 'GET',
@@ -102,7 +102,7 @@ const crawler = {
                         return request(options);
                     })
                     .catch((err) => {
-                        // status objectがない
+                        // Object not exist
                         if (err.code !== 'NoSuchKey') {
                             throw err;
                         }
@@ -142,8 +142,9 @@ const crawler = {
                             }
                         }
                         if (res.statusCode === 304) {
-                            // 304 Not Modifiedを受け取ったらS3からデータを取得して利用する
+                            // Check statusCode 
                             if (contentType.match(/(html|css)/)) {
+                                // HTML or CSS
                                 lambda.invoke({
                                     FunctionName: functionS3Name,
                                     InvocationType: 'Event',
@@ -157,11 +158,8 @@ const crawler = {
                                 }).catch((err) => {
                                     console.log(err);
                                 });
-                                return true;
-                            } else {
-                                // html, cssコンテンツでない場合は何もしない
-                                return true;
                             }
+                            return true;
                         }
 
                         const status = {
