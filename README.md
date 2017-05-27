@@ -1,6 +1,6 @@
 # utsusemi
 
-utsusemi = "空蝉"
+utsusemi = "[空蝉](http://ffxiclopedia.wikia.com/wiki/Utsusemi)"
 
 A tool to generate a static website by crawling the original site.
 
