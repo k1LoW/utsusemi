@@ -60,6 +60,7 @@ functions:
           integration: lambda-proxy
   remove:
     handler: src/handler/remove.handler
+    timeout: 30
     events:
       - http:
           path: /delete
