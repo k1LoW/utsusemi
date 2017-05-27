@@ -1,7 +1,7 @@
 ---
 region: ap-northeast-1
 targetHost: https://opslet.com
-bucketName: spider.opslet.com
+bucketName: utsusemi.opslet.com
 workerProcess: 2
 workerDelay: 100
 

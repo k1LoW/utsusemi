@@ -111,6 +111,6 @@ resources:
         ReceiveMessageWaitTimeSeconds: 0
         VisibilityTimeout: 30
   Outputs:
-    WebsiteURL:
+    UtsusemiWebsiteURL:
       Value: { "Fn::GetAtt" : [ HostingBucket, WebsiteURL ] }
       Description: "URL for website hosted on S3"

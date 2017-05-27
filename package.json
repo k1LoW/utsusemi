@@ -1,9 +1,11 @@
 {
   "name": "utsusemi",
   "version": "0.1.0",
-  "description": "Crawler for S3 Static Web Hosting",
+  "description": "A tool to generate a static website by crawling the original site.",
   "main": "index.js",
   "scripts": {
+    "deploy": "npm install && sls deploy -v",
+    "destroy": "sls remove",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
