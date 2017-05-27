@@ -41,9 +41,9 @@ $ AWS_PROFILE=XXxxXXX npm run destroy
 
 ## Usage
 
-### `/in` Start crawl 
+### `/in?path={startPath}&depth={crawlDepth}` Start crawling
 
-Start crawl target.
+Start crawling to targetHost.
 
 ```
 $ curl https://xxxxxxxxxx.execute-api.ap-northeast-1.amazonaws.com/v0/in?path=/&depth=3
@@ -51,9 +51,9 @@ $ curl https://xxxxxxxxxx.execute-api.ap-northeast-1.amazonaws.com/v0/in?path=/&
 
 And, access `UtsusemiWebsiteURL`.
 
-### `/cancel` Cancel crawl
+### `/cancel` Cancel crawling
 
-### `/delete` Delete object of utsusemi content
+### `/delete?path={objectPrefix}` Delete object of utsusemi content
 
 ## Architecture
 
