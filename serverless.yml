@@ -55,14 +55,14 @@ functions:
     handler: src/handler/purge.handler
     events:
       - http:
-          path: /kai
+          path: /purge
           method: get
           integration: lambda-proxy
   remove:
     handler: src/handler/remove.handler
     events:
       - http:
-          path: /metsu
+          path: /delete
           method: get
           integration: lambda-proxy
   worker:
