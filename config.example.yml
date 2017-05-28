@@ -4,4 +4,4 @@ targetHost: https://opslet.com
 bucketName: utsusemi.opslet.com
 workerProcess: 2
 workerDelay: 100
-
+threadsPerWorker: 1
