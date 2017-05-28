@@ -45,7 +45,7 @@ $ AWS_PROFILE=XXxxXXX npm run destroy
 
 Start crawling to targetHost.
 
-```
+```sh
 $ curl https://xxxxxxxxxx.execute-api.ap-northeast-1.amazonaws.com/v0/in?path=/&depth=3
 ```
 
@@ -53,7 +53,19 @@ And, access `UtsusemiWebsiteURL`.
 
 ### Purge crawling queue `/purge`
 
+Cancel crawling.
+
+```sh
+$ curl https://xxxxxxxxxx.execute-api.ap-northeast-1.amazonaws.com/v0/purge
+```
+
 ### Delete object of utsusemi content `/delete?path={objectPrefix}`
+
+Delete S3 object.
+
+```sh
+$ curl https://xxxxxxxxxx.execute-api.ap-northeast-1.amazonaws.com/v0/delete?path=/
+```
 
 ## Architecture
 
