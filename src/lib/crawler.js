@@ -2,6 +2,7 @@
 
 const yaml = require('js-yaml');
 const fs = require('fs');
+const packageInfo = JSON.parse(fs.readFileSync(__dirname + '/../../package.json', 'utf8'));
 const config = yaml.safeLoad(fs.readFileSync(__dirname + '/../../config.yml', 'utf8'));
 const serverlessConfig = yaml.safeLoad(fs.readFileSync(__dirname + '/../../serverless.yml', 'utf8'));
 const moment = require('moment');
@@ -54,6 +55,10 @@ const crawler = {
                     Key: bucketKey
                 };
 
+                let headers = {
+                    'User-Agent': `utsusemi/${packageInfo.version}`
+                };
+
                 return s3.getObjectTagging(objectParams).promise()
                     .then((data) => {
                         // Object exist
@@ -65,7 +70,6 @@ const crawler = {
                         if (status.uuid === uuid && status.depth >= depth) {
                             return true;
                         }
-                        let headers = {};
                         // Check expires
                         if (status.expires > moment().unix()){
                             if (status.contentType.match(/(html|css)/)) {
@@ -110,6 +114,7 @@ const crawler = {
                             method: 'GET',
                             uri: targetHost + path,
                             encoding: null,
+                            headers: headers,
                             resolveWithFullResponse: true
                         };
                         return request(options);
@@ -142,7 +147,7 @@ const crawler = {
                             }
                         }
                         if (res.statusCode === 304) {
-                            // Check statusCode 
+                            // Check statusCode
                             if (contentType.match(/(html|css)/)) {
                                 // HTML or CSS
                                 lambda.invoke({
