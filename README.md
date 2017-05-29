@@ -12,7 +12,7 @@ A tool to generate a static website by crawling the original site.
 
 ### :octocat: STEP 1. Clone
 
-```sh
+```console
 $ git clone https://github.com/k1LoW/utsusemi.git
 $ cd utsusemi
 $ npm install
@@ -24,7 +24,7 @@ Copy [`config.example.yml`](config.example.yml) to `config.yml`. And edit.
 
 ### :rocket: STEP 3. Deploy to AWS
 
-```sh
+```console
 $ AWS_PROFILE=XXxxXXX npm run deploy
 ```
 
@@ -35,7 +35,7 @@ And get endpoints URL and `UtsusemiWebsiteURL`
 1. Call API `/delete?path=/`
 2. Run following command.
 
-```sh
+```console
 $ AWS_PROFILE=XXxxXXX npm run destroy
 ```
 
@@ -45,7 +45,7 @@ $ AWS_PROFILE=XXxxXXX npm run destroy
 
 Start crawling to targetHost.
 
-```sh
+```console
 $ curl https://xxxxxxxxxx.execute-api.ap-northeast-1.amazonaws.com/v0/in?path=/&depth=3
 ```
 
@@ -55,7 +55,7 @@ And, access `UtsusemiWebsiteURL`.
 
 Cancel crawling.
 
-```sh
+```console
 $ curl https://xxxxxxxxxx.execute-api.ap-northeast-1.amazonaws.com/v0/purge
 ```
 
@@ -63,7 +63,7 @@ $ curl https://xxxxxxxxxx.execute-api.ap-northeast-1.amazonaws.com/v0/purge
 
 Delete S3 object.
 
-```sh
+```console
 $ curl https://xxxxxxxxxx.execute-api.ap-northeast-1.amazonaws.com/v0/delete?path=/
 ```
 
