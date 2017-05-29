@@ -58,6 +58,10 @@ const crawler = {
                 let headers = {
                     'User-Agent': `utsusemi/${packageInfo.version}`
                 };
+                if (config.crawlerUserAgent) {
+                    // custom User-Agent
+                    headers['User-Agent'] = config.crawlerUserAgent;
+                }
 
                 return s3.getObjectTagging(objectParams).promise()
                     .then((data) => {
