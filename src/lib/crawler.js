@@ -311,7 +311,7 @@ const crawler = {
                 links.push(crawler.realPath(absolute));
             }
         });
-        document.querySelectorAll('img,script,input').forEach((el) => {
+        document.querySelectorAll('img,script,input,iframe').forEach((el) => {
             if (el.src && url.resolve(targetHost, el.src).match(targetHost)) {
                 let absolute = url.resolve(targetHost + path, el.src).replace(targetHost,'');
                 el.src = crawler.utsusemiPath(absolute);
