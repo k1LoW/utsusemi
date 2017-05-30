@@ -6,7 +6,10 @@
   "scripts": {
     "deploy": "npm install && sls deploy -v",
     "destroy": "sls remove",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha --require intelli-espower-loader"
+  },
+  "directories": {
+    "test": "test/"
   },
   "keywords": [
     "crawler"
@@ -24,6 +27,9 @@
     "uuid": "^3.0.1"
   },
   "devDependencies": {
-    "aws-sdk": "^2.55.0"
+    "aws-sdk": "^2.55.0",
+    "intelli-espower-loader": "^1.0.1",
+    "mocha": "^3.4.2",
+    "power-assert": "^1.4.2"
   }
 }
