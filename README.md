@@ -1,4 +1,4 @@
-# utsusemi
+# utsusemi [![Build Status](https://travis-ci.org/k1LoW/utsusemi.svg?branch=master)](https://travis-ci.org/k1LoW/utsusemi)
 
 utsusemi = "[空蝉](http://ffxiclopedia.wikia.com/wiki/Utsusemi)"
 
