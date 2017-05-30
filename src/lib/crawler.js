@@ -31,6 +31,7 @@ const css = require('css');
 const url = require('url');
 const querystring = require('querystring');
 const { JSDOM } = jsdom;
+const utsusemi = require('./utsusemi');
 
 const crawler = {
     walk: (path, depth, uuid) => {
@@ -48,7 +49,7 @@ const crawler = {
                     }];
                 }
 
-                const bucketKey = crawler.bucketKey(path);
+                const bucketKey = utsusemi.bucketKey(path);
 
                 const objectParams = {
                     Bucket: bucketName,
@@ -257,7 +258,7 @@ const crawler = {
                     }];
                 }
 
-                const bucketKey = crawler.bucketKey(path);
+                const bucketKey = utsusemi.bucketKey(path);
 
                 const objectParams = {
                     Bucket: bucketName,
@@ -307,15 +308,15 @@ const crawler = {
         document.querySelectorAll('a,link').forEach((el) => {
             if (el.href && url.resolve(targetHost, el.href).match(targetHost)) {
                 let absolute = url.resolve(targetHost + path, el.href).replace(targetHost,'');
-                el.href = crawler.utsusemiPath(absolute);
-                links.push(crawler.realPath(absolute));
+                el.href = utsusemi.path(absolute);
+                links.push(utsusemi.realPath(absolute));
             }
         });
         document.querySelectorAll('img,script,input,iframe').forEach((el) => {
             if (el.src && url.resolve(targetHost, el.src).match(targetHost)) {
                 let absolute = url.resolve(targetHost + path, el.src).replace(targetHost,'');
-                el.src = crawler.utsusemiPath(absolute);
-                links.push(crawler.realPath(absolute));
+                el.src = utsusemi.path(absolute);
+                links.push(utsusemi.realPath(absolute));
             }
         });
 
@@ -331,7 +332,7 @@ const crawler = {
         }
         let links = [];
         obj.stylesheet.rules.map((rule) => {
-            let results = crawler.utsusemiRule(rule, path);
+            let results = utsusemi.rule(rule, path);
             links = links.concat(results[1]);
             return results[0];
         });
@@ -342,38 +343,10 @@ const crawler = {
 
         return [css.stringify(obj), filtered];
     },
-    utsusemiRule: (rule, path) => {
-        let links = [];
-        if (rule.type === 'media') {
-            rule.rules.map((r) => {
-                let results = crawler.utsusemiRule(r, path);
-                links = links.concat(results[1]);
-                return results[0];
-            });
-            return [rule, links];
-        }
-        if (rule.type !== 'rule') {
-            return [rule, links];
-        }
-        rule.declarations.map((d) => {
-            if (!d.value || !d.value.match(/url\(['"]*([^'")]+)['"]*\)/)) {
-                return d;
-            }
-            const matches = d.value.match(/url\(['"]*([^)'"]+)['"]*\)/g);
-            matches.forEach((m) => {
-                let urlp = m.replace(/.*url\(['"]*([^)'"]+)['"]*\).*/, '$1');
-                let absolute = url.resolve(targetHost + path, urlp).replace(targetHost,'');
-                d.value = d.value.replace(new RegExp(`${urlp}`), crawler.utsusemiPath(absolute));
-                links.push(crawler.realPath(absolute));
-            });
-            return d;
-        });
-        return [rule, links];
-    },
     queue: (path, depth, uuid, queueUrl, filtered) => {
         let queues = [];
         filtered.forEach((path) => {
-            const cache = `/tmp/${crawler.utsusemiPath(path).replace(/\//g, '__dir__')}-${(depth - 1)}-${uuid}`;
+            const cache = `/tmp/${utsusemi.path(path).replace(/\//g, '__dir__')}-${(depth - 1)}-${uuid}`;
             if (crawler.isFileExist(cache)) {
                 // cache hit
                 return;
@@ -390,56 +363,6 @@ const crawler = {
             fs.writeFile(cache, 'cache');
         });
         return Promise.all(queues);
-    },
-    bucketKey: (path) => {
-        const parsed = url.parse(path, true, true);
-        let pathname = parsed.pathname.replace(/^\//, '');
-        if (pathname === '') {
-            pathname = 'index.html';
-        }
-        if (pathname.match(/\/$/)) {
-            pathname = pathname + 'index.html';
-        }
-        let  bucketKey = pathname;
-        if (path.match(/\?/)) {
-            bucketKey = bucketKey + '?' + querystring.stringify(parsed.query);
-        }
-        return crawler.utsusemiPath(bucketKey);
-    },
-    utsusemiPath: (path) => {
-        path = path.replace(/\/\//g, '/');
-        if (!path.match(/\?/) || path.match(/-utsusemi-/)) {
-            return path;
-        }
-        const parsed = url.parse(path, true, true);
-        let pathArray = parsed.pathname.split('.');
-        let ext = null;
-        if (pathArray.length > 1) {
-            ext = pathArray.pop();
-        }
-        const hex = new Buffer(JSON.stringify(parsed.query), 'utf8').toString('hex');
-        let utsusemiPath = pathArray.join('.') + '-utsusemi-' + hex;
-        if (!ext) {
-            return decodeURIComponent(utsusemiPath);
-        }
-        return decodeURIComponent([utsusemiPath, ext].join('.'));
-    },
-    realPath: (utsusemiPath) => {
-        if (!utsusemiPath.match(/-utsusemi-/)) {
-            return utsusemiPath;
-        }
-        let pathArray = utsusemiPath.split('.');
-        let ext = null;
-        if (pathArray.length > 1) {
-            ext = pathArray.pop();
-        }
-        let utsusemiPathFront = pathArray.join('.');
-        let splitted = utsusemiPathFront.split('-utsusemi-');
-        const query = JSON.parse(new Buffer(splitted[1], 'hex').toString('utf8'));
-        if (!ext) {
-            return splitted[0] + '?' + querystring.stringify(query);
-        }
-        return splitted[0] + '.' + ext + '?' + querystring.stringify(query);
     },
     isFileExist: (path) => {
         try {
