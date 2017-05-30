@@ -392,14 +392,19 @@ const crawler = {
         return Promise.all(queues);
     },
     bucketKey: (path) => {
-        let bucketKey = crawler.utsusemiPath(path).replace(/^\//, '');
-        if (bucketKey === '') {
-            bucketKey = 'index.html';
+        const parsed = url.parse(path, true, true);
+        let pathname = parsed.pathname;
+        if (pathname === '') {
+            pathname = 'index.html';
         }
-        if (bucketKey.match(/\/$/)) {
-            bucketKey = bucketKey + 'index.html';
+        if (pathname.match(/\/$/)) {
+            pathname = pathname + 'index.html';
         }
-        return bucketKey;
+        let  bucketKey = pathname.replace(/^\//, '');
+        if (path.match(/\?/)) {
+            bucketKey = bucketKey + '?' + querystring.stringify(parsed.query);
+        }
+        return crawler.utsusemiPath(bucketKey);
     },
     utsusemiPath: (path) => {
         path = path.replace(/\/\//g, '/');
