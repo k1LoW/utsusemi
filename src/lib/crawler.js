@@ -393,14 +393,14 @@ const crawler = {
     },
     bucketKey: (path) => {
         const parsed = url.parse(path, true, true);
-        let pathname = parsed.pathname;
+        let pathname = parsed.pathname.replace(/^\//, '');
         if (pathname === '') {
             pathname = 'index.html';
         }
         if (pathname.match(/\/$/)) {
             pathname = pathname + 'index.html';
         }
-        let  bucketKey = pathname.replace(/^\//, '');
+        let  bucketKey = pathname;
         if (path.match(/\?/)) {
             bucketKey = bucketKey + '?' + querystring.stringify(parsed.query);
         }
