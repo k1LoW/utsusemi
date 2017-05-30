@@ -59,6 +59,7 @@ module.exports.handler = (event, context, cb) => {
             cb(null, response);
         })
         .catch((err) => {
+            console.error(err);
             const response = {
                 statusCode: 500,
                 body: JSON.stringify({
