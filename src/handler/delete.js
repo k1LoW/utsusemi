@@ -32,7 +32,9 @@ module.exports.handler = (event, context, cb) => {
                 if (data && data.Deleted.length == 1000) {
                     return recursiveDeleteObjects(params);
                 }
-                return Promise.resolve();
+                return [200, {
+                    message: 'Deleted'
+                }];
             });
     };
 
@@ -49,12 +51,10 @@ module.exports.handler = (event, context, cb) => {
         };
         return recursiveDeleteObjects(params);
     })
-        .then(() => {
+        .then((data) => {
             const response = {
-                statusCode: 200,
-                body: JSON.stringify({
-                    message: 'Deleted'
-                })
+                statusCode: data[0],
+                body: JSON.stringify(data[1])
             };
             cb(null, response);
         })
