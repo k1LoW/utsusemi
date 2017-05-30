@@ -1,5 +1,6 @@
 'use strict';
 
+const console = require('console');
 const yaml = require('js-yaml');
 const fs = require('fs');
 const config = yaml.safeLoad(fs.readFileSync(__dirname + '/../../config.yml', 'utf8'));
@@ -67,7 +68,7 @@ module.exports.handler = (event, context, cb) => {
                 cb(null, {});
             })
             .catch((err) => {
-                console.log(err);
+                console.error(err);
                 cb(err.code, {err:err});
             });
     }, config.workerDelay);

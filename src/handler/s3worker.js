@@ -1,5 +1,6 @@
 'use strict';
 
+const console = require('console');
 const crawler = require('../lib/crawler');
 
 module.exports.handler = (event, context, cb) => {
@@ -17,6 +18,7 @@ module.exports.handler = (event, context, cb) => {
             cb(null, response);
         })
         .catch((err) => {
+            console.error(err);
             const response = {
                 statusCode: 500,
                 body: JSON.stringify({

@@ -1,5 +1,6 @@
 'use strict';
 
+const console = require('console');
 const yaml = require('js-yaml');
 const fs = require('fs');
 const packageInfo = JSON.parse(fs.readFileSync(__dirname + '/../../package.json', 'utf8'));
@@ -88,9 +89,9 @@ const crawler = {
                                         uuid: uuid,
                                         contentType: status.contentType
                                     })
-                                }).promise().then((data) => {
+                                }).promise().then(() => {
                                 }).catch((err) => {
-                                    console.log(err);
+                                    console.error(err);
                                 });
                             }
                             return true;
@@ -125,7 +126,7 @@ const crawler = {
                         return request(options);
                     })
                     .catch((err) => {
-                        console.log(err);
+                        console.error(err);
                         return true;
                     })
                     .then((res) => {
@@ -166,7 +167,7 @@ const crawler = {
                                     })
                                 }).promise().then(() => {
                                 }).catch((err) => {
-                                    console.log(err);
+                                    console.error(err);
                                 });
                             }
                             return true;
@@ -372,8 +373,8 @@ const crawler = {
             if(err.code === 'ENOENT') {
                 return false;
             }
+            throw err;
         }
-        return false;
     }
 };
 
