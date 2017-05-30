@@ -9,9 +9,10 @@ const s3 = new aws.S3({
     apiVersion: '2006-03-01'
 });
 const bucketName = config.bucketName;
+const utsusemi = require('../lib/utsusemi');
 
 module.exports.handler = (event, context, cb) => {
-    const path = event.queryStringParameters && event.queryStringParameters.hasOwnProperty('path') ? event.queryStringParameters.path : null;
+    const prefix = event.queryStringParameters && event.queryStringParameters.hasOwnProperty('prefix') ? event.queryStringParameters.prefix : null;
 
     const recursiveDeleteObjects = (params) => {
         return s3.listObjectsV2(params).promise()
@@ -33,9 +34,9 @@ module.exports.handler = (event, context, cb) => {
                 return Promise.resolve();
             });
     };
-    
+
     Promise.resolve().then(() => {
-        if (!path || !path.match(/^\//)) {
+        if (!prefix || !prefix.match(/^\//)) {
             return [400, {
                 message: 'Bad Request'
             }];
@@ -43,7 +44,7 @@ module.exports.handler = (event, context, cb) => {
 
         const params = {
             Bucket: bucketName,
-            Prefix: path.replace(/^\//, '')
+            Prefix: utsusemi.bucketPrefix(prefix)
         };
         return recursiveDeleteObjects(params);
     })
@@ -65,5 +66,5 @@ module.exports.handler = (event, context, cb) => {
                 })
             };
             cb(null, response);
-        });    
+        });
 };

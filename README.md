@@ -59,7 +59,7 @@ Cancel crawling.
 $ curl https://xxxxxxxxxx.execute-api.ap-northeast-1.amazonaws.com/v0/purge
 ```
 
-### Delete object of utsusemi content `/delete?path={objectPrefix}`
+### Delete object of utsusemi content `/delete?prefix={objectPrefix}`
 
 Delete S3 object.
 
