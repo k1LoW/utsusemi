@@ -60,6 +60,12 @@ const utsusemi = {
         }
         return utsusemi.path(bucketKey);
     },
+    bucketPrefix: (prefix) => {
+        if (prefix.match(/\?/)) {
+            return utsusemi.bucketKey(prefix);
+        }
+        return prefix.replace(/^\//, '');
+    },
     rule: (rule, path) => {
         let links = [];
         if (rule.type === 'media') {

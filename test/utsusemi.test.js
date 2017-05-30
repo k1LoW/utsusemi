@@ -45,3 +45,18 @@ describe('utsusemi.bucketKey', () => {
         assert(utsusemi.bucketKey('/img/logo.png?page=3') === 'img/logo-utsusemi-7b2270616765223a2233227d.png');
     });
 });
+
+describe('utsusemi.bucketPrefix', () => {
+    it ('if prefix do not have querystring, bucketPrefix return value of S3 bucket prefix', () => {
+        assert(utsusemi.bucketPrefix('/') === '');
+        assert(utsusemi.bucketPrefix('/work/') === 'work/');
+        assert(utsusemi.bucketPrefix('/work') === 'work');
+        assert(utsusemi.bucketPrefix('/img/logo.png') === 'img/logo.png');
+    });
+    it ('if prefix have querystring, bucketPrefix return S3 object key path using utsusemiPath', () => {
+        assert(utsusemi.bucketPrefix('/?page=3') === 'index-utsusemi-7b2270616765223a2233227d.html');
+        assert(utsusemi.bucketPrefix('/work/?page=3') === 'work/index-utsusemi-7b2270616765223a2233227d.html');
+        assert(utsusemi.bucketPrefix('/work?page=3') === 'work-utsusemi-7b2270616765223a2233227d');
+        assert(utsusemi.bucketPrefix('/img/logo.png?page=3') === 'img/logo-utsusemi-7b2270616765223a2233227d.png');
+    });
+});

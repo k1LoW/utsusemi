@@ -31,7 +31,7 @@ provider:
         - "sqs:*"
       Resource:
         - '*'
-        
+
 package:
   include:
     - package.json
@@ -42,7 +42,7 @@ package:
     - .git/**
     - doc/**
     - node_modules/aws-sdk/**
-    
+
 functions:
   starter:
     handler: src/handler/starter.handler
@@ -59,8 +59,8 @@ functions:
           path: /purge
           method: get
           integration: lambda-proxy
-  remove:
-    handler: src/handler/remove.handler
+  delete:
+    handler: src/handler/delete.handler
     timeout: 30
     events:
       - http:
@@ -86,20 +86,20 @@ resources:
           ErrorDocument: error.html
     HostingBucketPolicy:
       Type: "AWS::S3::BucketPolicy"
-      Properties: 
+      Properties:
         Bucket: { Ref: HostingBucket }
         PolicyDocument:
-          Statement: 
-            - 
-              Action: 
+          Statement:
+            -
+              Action:
                 - "s3:GetObject"
               Effect: "Allow"
-              Resource: 
-                Fn::Join: 
+              Resource:
+                Fn::Join:
                   - ""
-                  - 
+                  -
                     - "arn:aws:s3:::"
-                    - 
+                    -
                       Ref: HostingBucket
                     - "/*"
               Principal: "*"
