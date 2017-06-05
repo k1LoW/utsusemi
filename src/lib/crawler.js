@@ -213,18 +213,15 @@ const crawler = {
                                 s3.putObject(objectParams).promise()
                             ]);
                         }
-                        let body = '';
-                        let filtered = [];
                         let results = ['',[]];
                         if (contentType.match(/html/)) {
                             results = scraper.scrapeHTML(res.body.toString(), path, targetHost);
-                            body = results[0];
-                            filtered = results[1];
                         } else if (contentType.match(/css/)) {
+                            depth = 3; // !!!!
                             results = scraper.scrapeCSS(res.body.toString(), path, targetHost);
-                            body = results[0];
-                            filtered = results[1];
                         }
+                        const body = results[0];
+                        const filtered = results[1];
 
                         const objectParams = {
                             Bucket: bucketName,
@@ -286,6 +283,7 @@ const crawler = {
                         if (contentType.match(/html/)) {
                             results = scraper.scrapeHTML(data.Body.toString(), path, targetHost);
                         } else if (contentType.match(/css/)) {
+                            depth = 3; // !!!!
                             results = scraper.scrapeCSS(data.Body.toString(), path, targetHost);
                         }
                         const filtered = results[1];
