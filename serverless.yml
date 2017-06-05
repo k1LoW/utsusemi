@@ -46,6 +46,7 @@ package:
 functions:
   starter:
     handler: src/handler/starter.handler
+    timeout: 15
     name: ${self:service}-${self:provider.stage}-starter
     events:
       - http:

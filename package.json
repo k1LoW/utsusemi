@@ -24,6 +24,7 @@
     "request": "^2.81.0",
     "request-promise-native": "^1.0.4",
     "serverless": "^1.13.2",
+    "sleep-promise": "^2.0.0",
     "uuid": "^3.0.1"
   },
   "devDependencies": {
