@@ -21,6 +21,14 @@ describe('scraper.scrapeCSS()', () => {
         assert(scraped[0].match('/path/img/title.png'));
         assert(scraped[1].toString() === ['/img/logo.png', '/path/img/title.png'].toString());
     });
+    it ('Scrape valid CSS with `import`', () => {
+        const cssStr = fs.readFileSync(__dirname + '/fixtures/valid_with_import.css', 'utf8');
+        const path = '/path/to/';
+        const scraped = scraper.scrapeCSS(cssStr, path);
+        assert(scraped[0].match('/css/common.css'));
+        assert(scraped[0].match('/path/css/sub.css'));
+        assert(scraped[1].toString() === ['/css/common.css', '/path/css/sub.css'].toString());
+    });
     it ('Scrape invalid CSS', () => {
         const cssStr = fs.readFileSync(__dirname + '/fixtures/invalid.css', 'utf8');
         const path = '/path/to/';
@@ -32,9 +40,16 @@ describe('scraper.scrapeCSS()', () => {
         const cssStr = fs.readFileSync(__dirname + '/fixtures/invalid_with_url.css', 'utf8');
         const path = '/path/to/';
         const scraped = scraper.scrapeCSS(cssStr, path);
-        assert(scraped[0] !== cssStr);
         assert(scraped[0].match('/img/logo.png'));
         assert(scraped[0].match('/path/img/title.png'));
         assert(scraped[1].toString() === ['/img/logo.png', '/path/img/title.png'].toString());
+    });
+    it ('Scrape invalid CSS with `import`', () => {
+        const cssStr = fs.readFileSync(__dirname + '/fixtures/invalid_with_import.css', 'utf8');
+        const path = '/path/to/';
+        const scraped = scraper.scrapeCSS(cssStr, path);
+        assert(scraped[0].match('/css/common.css'));
+        assert(scraped[0].match('/path/css/sub.css'));
+        assert(scraped[1].toString() === ['/css/common.css', '/path/css/sub.css'].toString());
     });
 });
