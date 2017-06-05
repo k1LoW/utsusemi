@@ -31,6 +31,7 @@ module.exports.handler = (event, context, cb) => {
                 FunctionName: functionWorkerName,
                 InvocationType: 'Event',
                 Payload: JSON.stringify({
+                    start: true
                 })
             };
             let workers = [];

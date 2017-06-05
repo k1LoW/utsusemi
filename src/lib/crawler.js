@@ -27,15 +27,13 @@ const queueName = serverlessConfig.resources.Resources.Channel.Properties.QueueN
       .replace('${self:service}', serverlessConfig.service)
       .replace('${self:provider.stage}', serverlessConfig.provider.stage);
 const request = require('request-promise-native');
-const jsdom = require('jsdom');
-const css = require('css');
-const url = require('url');
 const querystring = require('querystring');
-const { JSDOM } = jsdom;
+const scraper = require('./scraper');
 const utsusemi = require('./utsusemi');
 
 const crawler = {
     walk: (path, depth, uuid) => {
+        console.info('walk:' + path);
         return Promise.resolve()
             .then(() => {
                 if (depth == 0 || !depth) {
@@ -74,13 +72,14 @@ const crawler = {
                         });
                         // Check uuid & depth
                         if (status.uuid === uuid && status.depth >= depth) {
+                            console.info('status.uuid === uuid && status.depth >= depth:' + path);
                             return true;
                         }
                         // Check expires
                         if (status.expires > moment().unix()){
                             if (status.contentType.match(/(html|css)/)) {
                                 // HTML or CSS
-                                lambda.invoke({
+                                return lambda.invoke({
                                     FunctionName: functionS3Name,
                                     InvocationType: 'Event',
                                     Payload: JSON.stringify({
@@ -90,11 +89,12 @@ const crawler = {
                                         contentType: status.contentType
                                     })
                                 }).promise().then(() => {
+                                    return true;
                                 }).catch((err) => {
                                     console.error(err);
+                                    throw err;
                                 });
                             }
-                            return true;
                         }
                         // Set If-None-Match to headers by etag
                         if (status.etag !== '-') {
@@ -109,7 +109,37 @@ const crawler = {
                             headers: headers,
                             resolveWithFullResponse: true
                         };
-                        return request(options);
+
+                        return request(options).then((res) => {
+                            return res;
+                        }).catch((err) => {
+                            // Check statusCode
+                            if ([403, 404, 410].includes(err.statusCode)) {
+                                return true;
+                            }
+                            if (err.statusCode !== 304) {
+                                throw err;
+                            }
+                            if (status.contentType.match(/(html|css)/)) {
+                                // HTML or CSS
+                                return lambda.invoke({
+                                    FunctionName: functionS3Name,
+                                    InvocationType: 'Event',
+                                    Payload: JSON.stringify({
+                                        path: path,
+                                        depth: depth,
+                                        uuid: uuid,
+                                        contentType: status.contentType
+                                    })
+                                }).promise().then(() => {
+                                    return true;
+                                }).catch((err) => {
+                                    console.error(err);
+                                    throw err;
+                                });
+                            }
+                            return true;
+                        });
                     })
                     .catch((err) => {
                         // Object not exist
@@ -123,11 +153,15 @@ const crawler = {
                             headers: headers,
                             resolveWithFullResponse: true
                         };
-                        return request(options);
-                    })
-                    .catch((err) => {
-                        console.error(err);
-                        return true;
+                        return request(options).then((res) => {
+                            return res;
+                        }).catch((err) => {
+                            // Check statusCode
+                            if ([403, 404, 410].includes(err.statusCode)) {
+                                return true;
+                            }
+                            throw err;
+                        });
                     })
                     .then((res) => {
                         if (res === true) {
@@ -152,27 +186,6 @@ const crawler = {
                                 lastModified = moment(res.headers[h]).unix();
                             }
                         }
-                        if (res.statusCode === 304) {
-                            // Check statusCode
-                            if (contentType.match(/(html|css)/)) {
-                                // HTML or CSS
-                                lambda.invoke({
-                                    FunctionName: functionS3Name,
-                                    InvocationType: 'Event',
-                                    Payload: JSON.stringify({
-                                        path: path,
-                                        depth: depth,
-                                        uuid: uuid,
-                                        contentType: contentType
-                                    })
-                                }).promise().then(() => {
-                                }).catch((err) => {
-                                    console.error(err);
-                                });
-                            }
-                            return true;
-                        }
-
                         const status = {
                             contentType: contentType,
                             expires: expires,
@@ -204,11 +217,11 @@ const crawler = {
                         let filtered = [];
                         let results = ['',[]];
                         if (contentType.match(/html/)) {
-                            results = crawler.scrapeHTML(res.body.toString(), path);
+                            results = scraper.scrapeHTML(res.body.toString(), path, targetHost);
                             body = results[0];
                             filtered = results[1];
                         } else if (contentType.match(/css/)) {
-                            results = crawler.scrapeCSS(res.body.toString(), path);
+                            results = scraper.scrapeCSS(res.body.toString(), path, targetHost);
                             body = results[0];
                             filtered = results[1];
                         }
@@ -270,9 +283,9 @@ const crawler = {
                     .then((data) => {
                         let results = ['', []];
                         if (contentType.match(/html/)) {
-                            results = crawler.scrapeHTML(data.Body.toString(), path);
+                            results = scraper.scrapeHTML(data.Body.toString(), path, targetHost);
                         } else if (contentType.match(/css/)) {
-                            results = crawler.scrapeCSS(data.Body.toString(), path);
+                            results = scraper.scrapeCSS(data.Body.toString(), path, targetHost);
                         }
                         const filtered = results[1];
 
@@ -299,50 +312,6 @@ const crawler = {
                         }];
                     });
             });
-    },
-    scrapeHTML: (htmlStr, path) => {
-        const dom = new JSDOM(htmlStr);
-        const document = dom.window.document;
-
-        let links = [];
-
-        document.querySelectorAll('a,link').forEach((el) => {
-            if (el.href && url.resolve(targetHost, el.href).match(targetHost)) {
-                let absolute = url.resolve(targetHost + path, el.href).replace(targetHost,'');
-                el.href = utsusemi.path(absolute);
-                links.push(utsusemi.realPath(absolute));
-            }
-        });
-        document.querySelectorAll('img,script,input,iframe').forEach((el) => {
-            if (el.src && url.resolve(targetHost, el.src).match(targetHost)) {
-                let absolute = url.resolve(targetHost + path, el.src).replace(targetHost,'');
-                el.src = utsusemi.path(absolute);
-                links.push(utsusemi.realPath(absolute));
-            }
-        });
-
-        const filtered = links.filter(function(element, index, array) {
-            return array.indexOf(element) === index && element !== path;
-        });
-        return [dom.serialize(), filtered];
-    },
-    scrapeCSS: (cssStr, path) => {
-        let obj = css.parse(cssStr);
-        if (obj.type !== 'stylesheet') {
-            return [cssStr, []];
-        }
-        let links = [];
-        obj.stylesheet.rules.map((rule) => {
-            let results = utsusemi.rule(rule, path);
-            links = links.concat(results[1]);
-            return results[0];
-        });
-
-        const filtered = links.filter(function(element, index, array) {
-            return array.indexOf(element) === index && element !== path;
-        });
-
-        return [css.stringify(obj), filtered];
     },
     queue: (path, depth, uuid, queueUrl, filtered) => {
         let queues = [];

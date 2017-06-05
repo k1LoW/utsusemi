@@ -20,56 +20,66 @@ const queueName = serverlessConfig.resources.Resources.Channel.Properties.QueueN
       .replace('${self:service}', serverlessConfig.service)
       .replace('${self:provider.stage}', serverlessConfig.provider.stage);
 const crawler = require('../lib/crawler');
+const sleep = require('sleep-promise');
 
 module.exports.handler = (event, context, cb) => {
     const queueParams = {
         QueueName: queueName
     };
-    setTimeout(function () {
-        sqs.getQueueUrl(queueParams).promise()
-            .then((data) => {
-                const queueUrl = data.QueueUrl;
-                const queueParams = {
-                    QueueUrl: queueUrl,
-                    MaxNumberOfMessages: config.threadsPerWorker
-                };
-                return Promise.all([
-                    queueUrl,
-                    sqs.receiveMessage(queueParams).promise()
-                ]);
-            })
-            .then((data) => {
-                const queueUrl = data[0];
-                if (!data[1].Messages) {
-                    return Promise.resolve();
-                }
-                const threads = data[1].Messages.map((m) => {
-                    const message = JSON.parse(m.Body);
+    let delay = config.workerDelay;
+    if (event.start) {
+        // for wait queue
+        delay += 5000;
+    }
+    sleep(delay)
+        .then(() => {
+            return sqs.getQueueUrl(queueParams).promise()
+                .then((data) => {
+                    const queueUrl = data.QueueUrl;
+                    console.log('queueUrl:' + queueUrl);
                     const queueParams = {
                         QueueUrl: queueUrl,
-                        ReceiptHandle: m.ReceiptHandle
+                        MaxNumberOfMessages: config.threadsPerWorker
                     };
                     return Promise.all([
-                        sqs.deleteMessage(queueParams).promise(),
-                        crawler.walk(message.path, message.depth, message.uuid)
-                            .then(() => {
-                                return lambda.invoke({
-                                    FunctionName: functionWorkerName,
-                                    InvocationType: 'Event',
-                                    Payload: JSON.stringify({
-                                    })
-                                }).promise();
-                            })
+                        queueUrl,
+                        sqs.receiveMessage(queueParams).promise()
                     ]);
+                })
+                .then((data) => {
+                    const queueUrl = data[0];
+                    if (!data[1].Messages) {
+                        console.info('No Queue');
+                        return Promise.resolve(true);
+                    }
+                    const threads = data[1].Messages.map((m) => {
+                        const message = JSON.parse(m.Body);
+                        const queueParams = {
+                            QueueUrl: queueUrl,
+                            ReceiptHandle: m.ReceiptHandle
+                        };
+                        return Promise.all([
+                            sqs.deleteMessage(queueParams).promise(),
+                            crawler.walk(message.path, message.depth, message.uuid)
+                                .then(() => {
+                                    console.log('Re invoke worker');
+                                    return lambda.invoke({
+                                        FunctionName: functionWorkerName,
+                                        InvocationType: 'Event',
+                                        Payload: JSON.stringify({
+                                        })
+                                    }).promise();
+                                })
+                        ]);
+                    });
+                    return Promise.all(threads);
                 });
-                return Promise.all(threads);
-            })
-            .then(() => {
-                cb(null, {});
-            })
-            .catch((err) => {
-                console.error(err);
-                cb(err.code, {err:err});
-            });
-    }, config.workerDelay);
+        })
+        .then(() => {
+            cb(null, {});
+        })
+        .catch((err) => {
+            console.error(err);
+            cb(err.code, {err:err});
+        });
 };
