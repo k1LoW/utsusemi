@@ -1,6 +1,6 @@
 'use strict';
 
-const logger = require('./logger');
+const logger = require('../lib/logger');
 const yaml = require('js-yaml');
 const fs = require('fs');
 const config = yaml.safeLoad(fs.readFileSync(__dirname + '/../../config.yml', 'utf8'));
