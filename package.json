@@ -6,7 +6,7 @@
   "scripts": {
     "deploy": "npm install && sls deploy -v",
     "destroy": "sls remove",
-    "test": "mocha --require intelli-espower-loader"
+    "test": "nyc --reporter=lcovonly mocha --recursive --require intelli-espower-loader; nyc report"
   },
   "directories": {
     "test": "test/"
@@ -32,6 +32,7 @@
     "aws-sdk": "^2.55.0",
     "intelli-espower-loader": "^1.0.1",
     "mocha": "^3.4.2",
+    "nyc": "^11.0.2",
     "power-assert": "^1.4.2"
   }
 }
