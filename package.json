@@ -25,7 +25,8 @@
     "request-promise-native": "^1.0.4",
     "serverless": "^1.13.2",
     "sleep-promise": "^2.0.0",
-    "uuid": "^3.0.1"
+    "uuid": "^3.0.1",
+    "winston": "^2.3.1"
   },
   "devDependencies": {
     "aws-sdk": "^2.55.0",

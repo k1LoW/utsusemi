@@ -1,6 +1,6 @@
 'use strict';
 
-const console = require('console');
+const logger = require('./logger');
 const yaml = require('js-yaml');
 const fs = require('fs');
 const packageInfo = JSON.parse(fs.readFileSync(__dirname + '/../../package.json', 'utf8'));
@@ -33,7 +33,7 @@ const utsusemi = require('./utsusemi');
 
 const crawler = {
     walk: (path, depth, uuid) => {
-        console.info('walk:' + path);
+        logger.debug('walk: ' + path);
         return Promise.resolve()
             .then(() => {
                 if (depth == 0 || !depth) {
@@ -72,7 +72,7 @@ const crawler = {
                         });
                         // Check uuid & depth
                         if (status.uuid === uuid && status.depth >= depth) {
-                            console.info('status.uuid === uuid && status.depth >= depth:' + path);
+                            logger.debug('status.uuid === uuid && status.depth >= depth: ' + path);
                             return true;
                         }
                         // Check expires
@@ -91,7 +91,7 @@ const crawler = {
                                 }).promise().then(() => {
                                     return true;
                                 }).catch((err) => {
-                                    console.error(err);
+                                    logger.error(err);
                                     throw err;
                                 });
                             }
@@ -134,7 +134,7 @@ const crawler = {
                                 }).promise().then(() => {
                                     return true;
                                 }).catch((err) => {
-                                    console.error(err);
+                                    logger.error(err);
                                     throw err;
                                 });
                             }
@@ -255,6 +255,7 @@ const crawler = {
             });
     },
     s3walk: (path, depth, uuid, contentType) => {
+        logger.debug('s3walk: ' + path);
         if (!contentType.match(/(html|css)/)) {
             throw new 's3walk support only HTML or CSS.';
         }
