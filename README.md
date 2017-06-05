@@ -73,6 +73,6 @@ $ curl https://xxxxxxxxxx.execute-api.ap-northeast-1.amazonaws.com/v0/delete?pat
 
 ### Crawling rule
 
-- HTML -> `depth--`
+- HTML -> `depth = depth - 1`
 - CSS -> The source request in the CSS does not consume `depth`.
 - Other contents -> End ( `depth = 0` )
