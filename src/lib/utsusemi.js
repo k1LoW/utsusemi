@@ -70,7 +70,7 @@ const utsusemi = {
         let links = [];
         if (rule.type === 'import') {
             let importStr = rule.import;
-            let urli = importStr.replace(/['"]*([^)'"]+)['"]/, '$1');
+            let urli = importStr.replace(/(?:url\()?['"]*([^)'"]+)['"](?:\)?)/, '$1');
             let absolute = url.resolve(targetHost + path, urli).replace(targetHost,'');
             rule.import = importStr.replace(new RegExp(`${urli}`), utsusemi.path(absolute));
             links.push(utsusemi.realPath(absolute));

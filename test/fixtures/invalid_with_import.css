@@ -1,4 +1,5 @@
 @import '../../css/common.css';
+@import url('../../css/reset.css');
 
 html, body, div, span, object, iframe,
 h1, h2, h3, h4, h5, h6, p, blockquote, pre,
@@ -38,3 +39,4 @@ blockquote, q {
     quotes:none;
 
 @import "../css/sub.css";
+@import url("../css/style.css");

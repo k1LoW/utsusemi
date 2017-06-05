@@ -56,7 +56,7 @@ const scraper = {
             let links = [];
             let matches = [];
 
-            // url()
+            // url() / @import url()
             matches = cssStr.match(/url\("?'?[^'")]+"?'?\)/g);
             if (matches !== null) {
                 matches.forEach ((str) => {
@@ -71,7 +71,7 @@ const scraper = {
                 });
             }
 
-            // @import
+            // @import '/path/to/style.css'
             matches = cssStr.match(/@import\s+["']([^'"]+)["']/g);
             if (matches !== null) {
                 matches.forEach ((str) => {

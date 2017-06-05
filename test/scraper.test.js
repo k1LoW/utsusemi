@@ -26,8 +26,10 @@ describe('scraper.scrapeCSS()', () => {
         const path = '/path/to/';
         const scraped = scraper.scrapeCSS(cssStr, path);
         assert(scraped[0].match('/css/common.css'));
+        assert(scraped[0].match('/css/reset.css'));
         assert(scraped[0].match('/path/css/sub.css'));
-        assert(scraped[1].toString() === ['/css/common.css', '/path/css/sub.css'].toString());
+        assert(scraped[0].match('/path/css/style.css'));
+        assert(scraped[1].toString() === ['/css/common.css', '/css/reset.css', '/path/css/sub.css', '/path/css/style.css'].toString());
     });
     it ('Scrape invalid CSS', () => {
         const cssStr = fs.readFileSync(__dirname + '/fixtures/invalid.css', 'utf8');
@@ -49,7 +51,9 @@ describe('scraper.scrapeCSS()', () => {
         const path = '/path/to/';
         const scraped = scraper.scrapeCSS(cssStr, path);
         assert(scraped[0].match('/css/common.css'));
+        assert(scraped[0].match('/css/reset.css'));
         assert(scraped[0].match('/path/css/sub.css'));
-        assert(scraped[1].toString() === ['/css/common.css', '/path/css/sub.css'].toString());
+        assert(scraped[0].match('/path/css/style.css'));
+        assert(scraped[1].toString() === ['/css/reset.css', '/path/css/style.css', '/css/common.css', '/path/css/sub.css'].toString());
     });
 });
