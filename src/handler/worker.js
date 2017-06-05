@@ -28,8 +28,8 @@ module.exports.handler = (event, context, cb) => {
     };
     let delay = config.workerDelay;
     if (event.start) {
-        // for wait queue
-        delay += 5000;
+        // To wait for queue completion to SQS
+        delay += 3000;
     }
     sleep(delay)
         .then(() => {
