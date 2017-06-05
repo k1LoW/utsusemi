@@ -7,7 +7,7 @@ const { JSDOM } = jsdom;
 const utsusemi = require('./utsusemi');
 
 const scraper = {
-    scrapeHTML: (htmlStr, path, targetHost) => {
+    scrapeHTML: (htmlStr, path, targetHost = 'https://example.com') => {
         const dom = new JSDOM(htmlStr);
         const document = dom.window.document;
 
@@ -33,7 +33,7 @@ const scraper = {
         });
         return [dom.serialize(), filtered];
     },
-    scrapeCSS: (cssStr, path, targetHost) => {
+    scrapeCSS: (cssStr, path, targetHost = 'https://example.com') => {
         try {
             let obj = css.parse(cssStr);
             if (obj.type !== 'stylesheet') {
@@ -52,22 +52,41 @@ const scraper = {
 
             return [css.stringify(obj), filtered];
         } catch (e) {
-            const matches = cssStr.match(/url\("?'?[^'")]+"?'?\)/g);
-            if (matches == null) {
-                return [cssStr, []];
+            // Manual scrape CSS
+            let links = [];
+            let matches = [];
+
+            // url()
+            matches = cssStr.match(/url\("?'?[^'")]+"?'?\)/g);
+            if (matches !== null) {
+                matches.forEach ((str) => {
+                    let relative = str.replace(/url\("?'?([^'")]+)"?'?\)/, '$1');
+                    let absolute = url.resolve(targetHost + path, relative).replace(targetHost,'');
+                    cssStr = cssStr.replace(relative, absolute);
+                    links.push(absolute);
+                });
+
+                links = links.filter(function(element, index, array) {
+                    return array.indexOf(element) === index && element !== path;
+                });
             }
-            const links = matches.map ((str) => {
-                let relative = str.replace(/url\("?'?([^'")]+)"?'?\)/, '$1');
-                let absolute = url.resolve(targetHost + path, relative).replace(targetHost,'');
-                cssStr = cssStr.replace(relative, absolute);
-                return absolute;
-            });
 
-            const filtered = links.filter(function(element, index, array) {
-                return array.indexOf(element) === index && element !== path;
-            });
+            // @import
+            matches = cssStr.match(/@import\s+["']([^'"]+)["']/g);
+            if (matches !== null) {
+                matches.forEach ((str) => {
+                    let relative = str.replace(/@import\s+["']([^'"]+)["']/, '$1');
+                    let absolute = url.resolve(targetHost + path, relative).replace(targetHost,'');
+                    cssStr = cssStr.replace(relative, absolute);
+                    links.push(absolute);
+                });
 
-            return [cssStr, filtered];
+                links = links.filter(function(element, index, array) {
+                    return array.indexOf(element) === index && element !== path;
+                });
+            }
+
+            return [cssStr, links];
         }
     }
 };
