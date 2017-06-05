@@ -61,19 +61,22 @@ module.exports.handler = (event, context, cb) => {
                         return Promise.all([
                             sqs.deleteMessage(queueParams).promise(),
                             crawler.walk(message.path, message.depth, message.uuid)
-                                .then(() => {
-                                    logger.debug('Re invoke worker');
-                                    return lambda.invoke({
-                                        FunctionName: functionWorkerName,
-                                        InvocationType: 'Event',
-                                        Payload: JSON.stringify({
-                                        })
-                                    }).promise();
-                                })
                         ]);
                     });
                     return Promise.all(threads);
                 });
+        })
+        .then((data) => {
+            if (data === true) {
+                return Promise.resolve(true);
+            }
+            logger.debug('Re invoke worker');
+            return lambda.invoke({
+                FunctionName: functionWorkerName,
+                InvocationType: 'Event',
+                Payload: JSON.stringify({
+                })
+            }).promise();
         })
         .then(() => {
             cb(null, {});
