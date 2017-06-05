@@ -70,6 +70,7 @@ functions:
           integration: lambda-proxy
   worker:
     handler: src/handler/worker.handler
+    timeout: 15
     name: ${self:service}-${self:provider.stage}-worker
   s3worker:
     handler: src/handler/s3worker.handler
