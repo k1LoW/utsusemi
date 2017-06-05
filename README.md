@@ -70,3 +70,9 @@ $ curl https://xxxxxxxxxx.execute-api.ap-northeast-1.amazonaws.com/v0/delete?pat
 ## Architecture
 
 ![Architecture](architecture.png)
+
+### Crawling rule
+
+- HTML -> `depth--`
+- CSS -> The source request in the CSS does not consume `depth`.
+- Other contents -> End ( `depth = 0` )
