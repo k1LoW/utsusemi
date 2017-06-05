@@ -1,6 +1,6 @@
 'use strict';
 
-const console = require('console');
+const logger = require('./logger');
 const yaml = require('js-yaml');
 const fs = require('fs');
 const config = yaml.safeLoad(fs.readFileSync(__dirname + '/../../config.yml', 'utf8'));
@@ -36,7 +36,7 @@ module.exports.handler = (event, context, cb) => {
             return sqs.getQueueUrl(queueParams).promise()
                 .then((data) => {
                     const queueUrl = data.QueueUrl;
-                    console.log('queueUrl:' + queueUrl);
+                    logger.debug('queueUrl: ' + queueUrl);
                     const queueParams = {
                         QueueUrl: queueUrl,
                         MaxNumberOfMessages: config.threadsPerWorker
@@ -49,7 +49,7 @@ module.exports.handler = (event, context, cb) => {
                 .then((data) => {
                     const queueUrl = data[0];
                     if (!data[1].Messages) {
-                        console.info('No Queue');
+                        logger.debug('No Queue');
                         return Promise.resolve(true);
                     }
                     const threads = data[1].Messages.map((m) => {
@@ -62,7 +62,7 @@ module.exports.handler = (event, context, cb) => {
                             sqs.deleteMessage(queueParams).promise(),
                             crawler.walk(message.path, message.depth, message.uuid)
                                 .then(() => {
-                                    console.log('Re invoke worker');
+                                    logger.debug('Re invoke worker');
                                     return lambda.invoke({
                                         FunctionName: functionWorkerName,
                                         InvocationType: 'Event',
@@ -79,7 +79,7 @@ module.exports.handler = (event, context, cb) => {
             cb(null, {});
         })
         .catch((err) => {
-            console.error(err);
+            logger.error(err);
             cb(err.code, {err:err});
         });
 };
