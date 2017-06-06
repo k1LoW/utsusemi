@@ -12,17 +12,17 @@ class Utsusemi {
 
     path(path) {
         path = path.replace(/\/\//g, '/');
-        if (!path.match(/\?/) || path.match(separator)) {
-            return path;
-        }
         const parsed = url.parse(path, true, true);
         let pathArray = parsed.pathname.split('.');
         let ext = null;
         if (pathArray.length > 1) {
             ext = pathArray.pop();
         }
+        if (!path.match(/\?/) || path.match(separator)) {
+            return this.fixSlash(path);
+        }
         const hex = new Buffer(JSON.stringify(parsed.query), 'utf8').toString('hex');
-        let utsusemiPath = pathArray.join('.') + separator + hex;
+        let utsusemiPath = this.fixSlash(pathArray.join('.')) + separator + hex;
         if (!ext) {
             return decodeURIComponent(utsusemiPath);
         }
@@ -30,21 +30,22 @@ class Utsusemi {
     }
 
     realPath(utsusemiPath) {
-        if (!utsusemiPath.match(separator)) {
-            return utsusemiPath;
-        }
         let pathArray = utsusemiPath.split('.');
         let ext = null;
         if (pathArray.length > 1) {
             ext = pathArray.pop();
         }
+        if (!utsusemiPath.match(separator)) {
+            return this.fixSlash(utsusemiPath);
+        }
         let utsusemiPathFront = pathArray.join('.');
         let splitted = utsusemiPathFront.split(separator);
         const query = JSON.parse(new Buffer(splitted[1], 'hex').toString('utf8'));
+        let path = this.fixSlash(splitted[0]);
         if (!ext) {
-            return splitted[0] + '?' + querystring.stringify(query);
+            return path + '?' + querystring.stringify(query);
         }
-        return splitted[0] + '.' + ext + '?' + querystring.stringify(query);
+        return path + '.' + ext + '?' + querystring.stringify(query);
     }
 
     bucketKey(path) {
@@ -104,6 +105,27 @@ class Utsusemi {
             return d;
         });
         return [rule, links];
+    }
+
+    fixSlash(path) {
+        const parsed = url.parse(path, true, true);
+        let pathArray = parsed.pathname.split('.');
+        let ext = null;
+        if (pathArray.length > 1) {
+            ext = pathArray.pop();
+        }
+        let fixed;
+        if (this.config.forceTrailingSlash && !ext) {
+            fixed = pathArray.join('.') + '/';
+        } else if (!ext) {
+            fixed = pathArray.join('.');
+        } else {
+            fixed = pathArray.join('.') + '.' + ext;
+        }
+        if (path.match(/\?/)) {
+            fixed = fixed + '?' + querystring.stringify(parsed.query);
+        }
+        return fixed.replace(/\/\//g, '/');
     }
 }
 
