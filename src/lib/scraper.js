@@ -4,7 +4,11 @@ const jsdom = require('jsdom');
 const css = require('css');
 const url = require('url');
 const { JSDOM } = jsdom;
-const utsusemi = require('./utsusemi');
+const yaml = require('js-yaml');
+const fs = require('fs');
+const config = yaml.safeLoad(fs.readFileSync(__dirname + '/../../config.yml', 'utf8'));
+const Utsusemi = require('./utsusemi');
+const utsusemi = new Utsusemi(config);
 
 const scraper = {
     scrapeHTML: (htmlStr, path, targetHost = 'https://example.com') => {

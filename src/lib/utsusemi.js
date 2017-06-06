@@ -1,16 +1,16 @@
 'use strict';
 
-const yaml = require('js-yaml');
-const fs = require('fs');
-const config = yaml.safeLoad(fs.readFileSync(__dirname + '/../../config.yml', 'utf8'));
 const url = require('url');
 const querystring = require('querystring');
-const targetHost = config.targetHost;
 
 const separator = '-utsusemi-';
 
-const utsusemi = {
-    path: (path) => {
+class Utsusemi {
+    constructor(config) {
+        this.config = config;
+    }
+
+    path(path) {
         path = path.replace(/\/\//g, '/');
         if (!path.match(/\?/) || path.match(separator)) {
             return path;
@@ -27,8 +27,9 @@ const utsusemi = {
             return decodeURIComponent(utsusemiPath);
         }
         return decodeURIComponent([utsusemiPath, ext].join('.'));
-    },
-    realPath: (utsusemiPath) => {
+    }
+
+    realPath(utsusemiPath) {
         if (!utsusemiPath.match(separator)) {
             return utsusemiPath;
         }
@@ -44,8 +45,9 @@ const utsusemi = {
             return splitted[0] + '?' + querystring.stringify(query);
         }
         return splitted[0] + '.' + ext + '?' + querystring.stringify(query);
-    },
-    bucketKey: (path) => {
+    }
+
+    bucketKey(path) {
         const parsed = url.parse(path, true, true);
         let pathname = parsed.pathname.replace(/^\//, '');
         if (pathname === '') {
@@ -58,27 +60,29 @@ const utsusemi = {
         if (path.match(/\?/)) {
             bucketKey = bucketKey + '?' + querystring.stringify(parsed.query);
         }
-        return utsusemi.path(bucketKey);
-    },
-    bucketPrefix: (prefix) => {
+        return this.path(bucketKey);
+    }
+
+    bucketPrefix(prefix) {
         if (prefix.match(/\?/)) {
-            return utsusemi.bucketKey(prefix);
+            return this.bucketKey(prefix);
         }
         return prefix.replace(/^\//, '');
-    },
-    rule: (rule, path) => {
+    }
+
+    rule(rule, path) {
         let links = [];
         if (rule.type === 'import') {
             let importStr = rule.import;
             let urli = importStr.replace(/(?:url\()?['"]*([^)'"]+)['"](?:\)?)/, '$1');
-            let absolute = url.resolve(targetHost + path, urli).replace(targetHost,'');
-            rule.import = importStr.replace(new RegExp(`${urli}`), utsusemi.path(absolute));
-            links.push(utsusemi.realPath(absolute));
+            let absolute = url.resolve(this.config.targetHost + path, urli).replace(this.config.targetHost,'');
+            rule.import = importStr.replace(new RegExp(`${urli}`), this.path(absolute));
+            links.push(this.realPath(absolute));
             return [rule, links];
         }
         if (rule.type === 'media') {
             rule.rules.map((r) => {
-                let results = utsusemi.rule(r, path);
+                let results = this.rule(r, path);
                 links = links.concat(results[1]);
                 return results[0];
             });
@@ -94,14 +98,14 @@ const utsusemi = {
             const matches = d.value.match(/url\(['"]*([^)'"]+)['"]*\)/g);
             matches.forEach((m) => {
                 let urlp = m.replace(/.*url\(['"]*([^)'"]+)['"]*\).*/, '$1');
-                let absolute = url.resolve(targetHost + path, urlp).replace(targetHost,'');
-                d.value = d.value.replace(new RegExp(`${urlp}`), utsusemi.path(absolute));
-                links.push(utsusemi.realPath(absolute));
+                let absolute = url.resolve(this.config.targetHost + path, urlp).replace(this.config.targetHost,'');
+                d.value = d.value.replace(new RegExp(`${urlp}`), this.path(absolute));
+                links.push(this.realPath(absolute));
             });
             return d;
         });
         return [rule, links];
     }
-};
+}
 
-module.exports = utsusemi;
+module.exports = Utsusemi;

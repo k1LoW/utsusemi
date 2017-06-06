@@ -2,10 +2,18 @@
 
 const describe = require('mocha').describe;
 const it = require('mocha').it;
+const before = require('mocha').before;
 const assert = require('power-assert');
-const utsusemi = require('../src/lib/utsusemi');
+const Utsusemi = require('../src/lib/utsusemi');
 
 describe('utsusemi.path()', () => {
+    let utsusemi;
+    let config;
+    before((done) => {
+        config = {targetHost: 'https://example.com'};
+        utsusemi = new Utsusemi(config);
+        done();
+    });
     it ('if path do not have querystring, return original path', () => {
         assert(utsusemi.path('/') === '/');
         assert(utsusemi.path('/work/') === '/work/');
@@ -21,6 +29,13 @@ describe('utsusemi.path()', () => {
 });
 
 describe('utsusemi.realPath()', () => {
+    let utsusemi;
+    let config;
+    before((done) => {
+        config = {targetHost: 'https://example.com'};
+        utsusemi = new Utsusemi(config);
+        done();
+    });
     it ('if path do not have querystring, return original path', () => {
         assert(utsusemi.realPath('/') === '/');
         assert(utsusemi.realPath('/work/') === '/work/');
@@ -36,6 +51,13 @@ describe('utsusemi.realPath()', () => {
 });
 
 describe('utsusemi.bucketKey()', () => {
+    let utsusemi;
+    let config;
+    before((done) => {
+        config = {targetHost: 'https://example.com'};
+        utsusemi = new Utsusemi(config);
+        done();
+    });
     it ('if path do not have querystring, return S3 object key path', () => {
         assert(utsusemi.bucketKey('/') === 'index.html');
         assert(utsusemi.bucketKey('/work/') === 'work/index.html');
@@ -51,6 +73,13 @@ describe('utsusemi.bucketKey()', () => {
 });
 
 describe('utsusemi.bucketPrefix', () => {
+    let utsusemi;
+    let config;
+    before((done) => {
+        config = {targetHost: 'https://example.com'};
+        utsusemi = new Utsusemi(config);
+        done();
+    });
     it ('if prefix do not have querystring, bucketPrefix return value of S3 bucket prefix', () => {
         assert(utsusemi.bucketPrefix('/') === '');
         assert(utsusemi.bucketPrefix('/work/') === 'work/');
