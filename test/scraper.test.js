@@ -3,10 +3,18 @@
 const fs = require('fs');
 const describe = require('mocha').describe;
 const it = require('mocha').it;
+const before = require('mocha').before;
 const assert = require('power-assert');
-const scraper = require('../src/lib/scraper');
+const Scraper = require('../src/lib/scraper');
 
 describe('scraper.scrapeCSS()', () => {
+    let scraper;
+    let config;
+    before((done) => {
+        config = {targetHost: 'https://example.com'};
+        scraper = new Scraper(config);
+        done();
+    });
     it ('Scrape valid CSS', () => {
         const cssStr = fs.readFileSync(__dirname + '/fixtures/valid.css', 'utf8');
         const path = '/path/to/';
