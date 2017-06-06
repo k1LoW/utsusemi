@@ -65,9 +65,10 @@ describe('utsusemi.bucketKey()', () => {
         assert(utsusemi.bucketKey('/img/logo.png') === 'img/logo.png');
     });
     it ('if path have querystring, return S3 object key path using utsusemiPath', () => {
-        assert(utsusemi.bucketKey('/?page=3') === 'index-utsusemi-7b2270616765223a2233227d.html');
-        assert(utsusemi.bucketKey('/work/?page=3') === 'work/index-utsusemi-7b2270616765223a2233227d.html');
+        assert(utsusemi.bucketKey('/?page=3') === '-utsusemi-7b2270616765223a2233227d');
+        assert(utsusemi.bucketKey('/work/?page=3') === 'work/-utsusemi-7b2270616765223a2233227d');
         assert(utsusemi.bucketKey('/work?page=3') === 'work-utsusemi-7b2270616765223a2233227d');
+        assert(utsusemi.bucketKey('/work.html?page=3') === 'work-utsusemi-7b2270616765223a2233227d.html');
         assert(utsusemi.bucketKey('/img/logo.png?page=3') === 'img/logo-utsusemi-7b2270616765223a2233227d.png');
     });
 });
@@ -87,9 +88,10 @@ describe('utsusemi.bucketPrefix', () => {
         assert(utsusemi.bucketPrefix('/img/logo.png') === 'img/logo.png');
     });
     it ('if prefix have querystring, bucketPrefix return S3 object key path using utsusemiPath', () => {
-        assert(utsusemi.bucketPrefix('/?page=3') === 'index-utsusemi-7b2270616765223a2233227d.html');
-        assert(utsusemi.bucketPrefix('/work/?page=3') === 'work/index-utsusemi-7b2270616765223a2233227d.html');
+        assert(utsusemi.bucketPrefix('/?page=3') === '-utsusemi-7b2270616765223a2233227d');
+        assert(utsusemi.bucketPrefix('/work/?page=3') === 'work/-utsusemi-7b2270616765223a2233227d');
         assert(utsusemi.bucketPrefix('/work?page=3') === 'work-utsusemi-7b2270616765223a2233227d');
+        assert(utsusemi.bucketPrefix('/work.html?page=3') === 'work-utsusemi-7b2270616765223a2233227d.html');
         assert(utsusemi.bucketPrefix('/img/logo.png?page=3') === 'img/logo-utsusemi-7b2270616765223a2233227d.png');
     });
 });

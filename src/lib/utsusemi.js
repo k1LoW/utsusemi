@@ -48,19 +48,18 @@ class Utsusemi {
     }
 
     bucketKey(path) {
+        if (path.match(/\?/)) {
+            return this.path(path).replace(/^\//, '');
+        }
         const parsed = url.parse(path, true, true);
-        let pathname = parsed.pathname.replace(/^\//, '');
-        if (pathname === '') {
+        let pathname = parsed.pathname;
+        if (pathname === '/') {
             pathname = 'index.html';
         }
         if (pathname.match(/\/$/)) {
             pathname = pathname + 'index.html';
         }
-        let  bucketKey = pathname;
-        if (path.match(/\?/)) {
-            bucketKey = bucketKey + '?' + querystring.stringify(parsed.query);
-        }
-        return this.path(bucketKey);
+        return pathname.replace(/^\//, '');
     }
 
     bucketPrefix(prefix) {
