@@ -28,7 +28,8 @@ const queueName = serverlessConfig.resources.Resources.Channel.Properties.QueueN
       .replace('${self:provider.stage}', serverlessConfig.provider.stage);
 const request = require('request-promise-native');
 const querystring = require('querystring');
-const scraper = require('./scraper');
+const Scraper = require('./scraper');
+const scraper = new Scraper(config);
 const Utsusemi = require('./utsusemi');
 const utsusemi = new Utsusemi(config);
 const jschardet = require('jschardet');
