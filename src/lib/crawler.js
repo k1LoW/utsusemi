@@ -30,6 +30,8 @@ const request = require('request-promise-native');
 const querystring = require('querystring');
 const scraper = require('./scraper');
 const utsusemi = require('./utsusemi');
+const jschardet = require('jschardet');
+const iconv = require('iconv-lite');
 
 const crawler = {
     walk: (path, depth, uuid) => {
@@ -214,13 +216,15 @@ const crawler = {
                             ]);
                         }
                         let results = ['',[]];
+                        const detected = jschardet.detect(res.body);
+                        const decoded = iconv.decode(res.body, detected.encoding);
                         if (contentType.match(/html/)) {
-                            results = scraper.scrapeHTML(res.body.toString(), path, targetHost);
+                            results = scraper.scrapeHTML(decoded, path, targetHost);
                         } else if (contentType.match(/css/)) {
                             depth = 3; // !!!!
-                            results = scraper.scrapeCSS(res.body.toString(), path, targetHost);
+                            results = scraper.scrapeCSS(decoded, path, targetHost);
                         }
-                        const body = results[0];
+                        const body = iconv.encode(results[0], detected.encoding);
                         const filtered = results[1];
 
                         const objectParams = {
@@ -280,11 +284,14 @@ const crawler = {
                 return s3.getObject(objectParams).promise()
                     .then((data) => {
                         let results = ['', []];
+                        const detected = jschardet.detect(data.Body);
+                        const decoded = iconv.decode(data.Body, detected.encoding);
+
                         if (contentType.match(/html/)) {
-                            results = scraper.scrapeHTML(data.Body.toString(), path, targetHost);
+                            results = scraper.scrapeHTML(decoded, path, targetHost);
                         } else if (contentType.match(/css/)) {
                             depth = 3; // !!!!
-                            results = scraper.scrapeCSS(data.Body.toString(), path, targetHost);
+                            results = scraper.scrapeCSS(decoded, path, targetHost);
                         }
                         const filtered = results[1];
 

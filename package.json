@@ -18,7 +18,9 @@
   "license": "MIT",
   "dependencies": {
     "css": "^2.2.1",
+    "iconv-lite": "^0.4.17",
     "js-yaml": "^3.8.4",
+    "jschardet": "^1.4.2",
     "jsdom": "^11.0.0",
     "moment": "^2.18.1",
     "request": "^2.81.0",
