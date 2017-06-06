@@ -10,7 +10,8 @@ const s3 = new aws.S3({
     apiVersion: '2006-03-01'
 });
 const bucketName = config.bucketName;
-const utsusemi = require('../lib/utsusemi');
+const Utsusemi = require('../lib/utsusemi');
+const utsusemi = new Utsusemi(config);
 
 module.exports.handler = (event, context, cb) => {
     const prefix = event.queryStringParameters && event.queryStringParameters.hasOwnProperty('prefix') ? event.queryStringParameters.prefix : null;

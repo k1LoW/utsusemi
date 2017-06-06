@@ -29,7 +29,8 @@ const queueName = serverlessConfig.resources.Resources.Channel.Properties.QueueN
 const request = require('request-promise-native');
 const querystring = require('querystring');
 const scraper = require('./scraper');
-const utsusemi = require('./utsusemi');
+const Utsusemi = require('./utsusemi');
+const utsusemi = new Utsusemi(config);
 const jschardet = require('jschardet');
 const iconv = require('iconv-lite');
 
