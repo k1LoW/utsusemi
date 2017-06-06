@@ -324,7 +324,8 @@ const crawler = {
         filtered.forEach((path) => {
             const cache = `/tmp/${utsusemi.path(path).replace(/\//g, '__dir__')}-${(depth - 1)}-${uuid}`;
             if (crawler.isFileExist(cache)) {
-                // cache hit
+                // Cache hit
+                logger.debug('Cache hit: ' + path);
                 return;
             }
             const params = {
