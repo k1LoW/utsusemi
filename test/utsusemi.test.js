@@ -26,6 +26,12 @@ describe('utsusemi.path()', () => {
         assert(utsusemi.path('/work?page=3') === '/work-utsusemi-7b2270616765223a2233227d');
         assert(utsusemi.path('/img/logo.png?page=3') === '/img/logo-utsusemi-7b2270616765223a2233227d.png');
     });
+    it ('if path have double slash, return single slash', () => {
+        assert(utsusemi.path('//') === '/');
+        assert(utsusemi.path('/work//') === '/work/');
+        assert(utsusemi.path('//work') === '/work');
+        assert(utsusemi.path('//img//logo.png') === '/img/logo.png');
+    });
 });
 
 describe('utsusemi.realPath()', () => {
@@ -93,5 +99,37 @@ describe('utsusemi.bucketPrefix', () => {
         assert(utsusemi.bucketPrefix('/work?page=3') === 'work-utsusemi-7b2270616765223a2233227d');
         assert(utsusemi.bucketPrefix('/work.html?page=3') === 'work-utsusemi-7b2270616765223a2233227d.html');
         assert(utsusemi.bucketPrefix('/img/logo.png?page=3') === 'img/logo-utsusemi-7b2270616765223a2233227d.png');
+    });
+});
+
+describe('utsusemi.bucketKey()', () => {
+
+});
+
+describe('config.forceTrailingSlash = true', () => {
+    let utsusemi;
+    let config;
+    before((done) => {
+        config = {
+            targetHost: 'https://example.com',
+            forceTrailingSlash: true
+        };
+        utsusemi = new Utsusemi(config);
+        done();
+    });
+    it ('if forceTrailingSlash = true, utsusemi.path() return set trailing slash', () => {
+        assert(utsusemi.path('/work/') === '/work/');
+        assert(utsusemi.path('/work') === '/work/');
+        assert(utsusemi.path('/work/?page=3') === '/work/-utsusemi-7b2270616765223a2233227d');
+        assert(utsusemi.path('/work?page=3') === '/work/-utsusemi-7b2270616765223a2233227d');
+    });
+    it ('if forceTrailingSlash = true, utsusemi.realPath() return set trailing slash', () => {
+        assert(utsusemi.realPath('/work/') === '/work/');
+        assert(utsusemi.realPath('/work') === '/work/');
+        assert(utsusemi.realPath('/work/?page=3') === '/work/?page=3');
+        assert(utsusemi.realPath('/work?page=3') === '/work/?page=3');
+        assert(utsusemi.path('/work/?page=3') === '/work/-utsusemi-7b2270616765223a2233227d');
+        assert(utsusemi.path('/work?page=3') === '/work/-utsusemi-7b2270616765223a2233227d');
+        assert(utsusemi.realPath('/work/-utsusemi-7b2270616765223a2233227d') === '/work/?page=3');
     });
 });
