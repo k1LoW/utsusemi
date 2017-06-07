@@ -75,9 +75,11 @@ class Utsusemi {
         if (rule.type === 'import') {
             let importStr = rule.import;
             let urli = importStr.replace(/(?:url\()?['"]*([^)'"]+)['"](?:\)?)/, '$1');
-            let absolute = url.resolve(this.config.targetHost + path, urli).replace(this.config.targetHost,'');
-            rule.import = importStr.replace(new RegExp(`${urli}`), this.path(absolute));
-            links.push(this.realPath(absolute));
+            if (urli && url.resolve(this.config.targetHost, urli).match(this.config.targetHost)) {
+                let absolute = url.resolve(this.config.targetHost + path, urli).replace(this.config.targetHost,'');
+                rule.import = importStr.replace(new RegExp(`${urli}`), this.path(absolute));
+                links.push(this.realPath(absolute));
+            }
             return [rule, links];
         }
         if (rule.type === 'media') {
@@ -88,7 +90,7 @@ class Utsusemi {
             });
             return [rule, links];
         }
-        if (rule.type !== 'rule') {
+        if (rule.type !== 'rule' && rule.type !== 'font-face') {
             return [rule, links];
         }
         rule.declarations.map((d) => {
@@ -98,9 +100,11 @@ class Utsusemi {
             const matches = d.value.match(/url\(['"]*([^)'"]+)['"]*\)/g);
             matches.forEach((m) => {
                 let urlp = m.replace(/.*url\(['"]*([^)'"]+)['"]*\).*/, '$1');
-                let absolute = url.resolve(this.config.targetHost + path, urlp).replace(this.config.targetHost,'');
-                d.value = d.value.replace(new RegExp(`${urlp}`), this.path(absolute));
-                links.push(this.realPath(absolute));
+                if (urlp && url.resolve(this.config.targetHost, urlp).match(this.config.targetHost)) {
+                    let absolute = url.resolve(this.config.targetHost + path, urlp).replace(this.config.targetHost,'');
+                    d.value = d.value.replace(`${urlp}`, this.path(absolute));
+                    links.push(this.realPath(absolute));
+                }
             });
             return d;
         });

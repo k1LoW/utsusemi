@@ -84,9 +84,11 @@ class Scraper {
             if (matches !== null) {
                 matches.forEach ((str) => {
                     let relative = str.replace(/url\("?'?([^'")]+)"?'?\)/, '$1');
-                    let absolute = url.resolve(this.config.targetHost + path, relative).replace(this.config.targetHost,'');
-                    cssStr = cssStr.replace(relative, absolute);
-                    links.push(absolute);
+                    if (relative && url.resolve(this.config.targetHost, relative).match(this.config.targetHost)) {
+                        let absolute = url.resolve(this.config.targetHost + path, relative).replace(this.config.targetHost,'');
+                        cssStr = cssStr.replace(relative, absolute);
+                        links.push(this.utsusemi.realPath(absolute));
+                    }
                 });
 
                 links = links.filter(function(element, index, array) {
@@ -99,9 +101,11 @@ class Scraper {
             if (matches !== null) {
                 matches.forEach ((str) => {
                     let relative = str.replace(/@import\s+["']([^'"]+)["']/, '$1');
-                    let absolute = url.resolve(this.config.targetHost + path, relative).replace(this.config.targetHost,'');
-                    cssStr = cssStr.replace(relative, absolute);
-                    links.push(absolute);
+                    if (relative && url.resolve(this.config.targetHost, relative).match(this.config.targetHost)) {
+                        let absolute = url.resolve(this.config.targetHost + path, relative).replace(this.config.targetHost,'');
+                        cssStr = cssStr.replace(relative, absolute);
+                        links.push(this.utsusemi.realPath(absolute));
+                    }
                 });
 
                 links = links.filter(function(element, index, array) {
