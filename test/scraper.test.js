@@ -15,6 +15,12 @@ describe('scraper.scrapeHTML()', () => {
         scraper = new Scraper(config);
         done();
     });
+    it ('<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">', () => {
+        const htmlStr = '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd"><html><head></head><body><h1>Hello</h1></body></html>';
+        const path = '/path/to/';
+        const scraped = scraper.scrapeHTML(htmlStr, path);
+        assert(scraped[0].match('4.01 Transitional'));
+    });
     it ('Scrape <table> <tr> <td> <th> `backgroud` attribute image', () => {
         const htmlStr = '<table background="table.jpg"><tr background="../tr.jpg"><th background="../../th.jpg"></th><td background="./td.jpg"></td></tr></table><table></table>';
         const path = '/path/to/';
