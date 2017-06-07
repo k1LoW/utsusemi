@@ -100,3 +100,11 @@ div.logo {
 div.title {
     background: url(../img/title.png);
 }
+
+div.same1 {
+    background: url('img/same.png');
+}
+
+div.same2 {
+    background: url('img/same.png');
+}
