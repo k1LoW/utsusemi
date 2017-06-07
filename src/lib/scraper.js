@@ -28,7 +28,7 @@ class Scraper {
         document.querySelectorAll('table,tr,td,th').forEach((el) => {
             // <table> <tr> <td> <th> `backgroud` attribute
             let attr = el.attributes.getNamedItem('background');
-            if (attr.nodeValue && url.resolve(this.config.targetHost, attr.nodeValue).match(this.config.targetHost)) {
+            if (attr && attr.nodeValue && url.resolve(this.config.targetHost, attr.nodeValue).match(this.config.targetHost)) {
                 let absolute = url.resolve(this.config.targetHost + path, attr.nodeValue).replace(this.config.targetHost,'');
                 attr.nodeValue = this.utsusemi.path(absolute);
                 el.attributes.setNamedItem(attr);

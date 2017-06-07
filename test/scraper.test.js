@@ -16,7 +16,7 @@ describe('scraper.scrapeHTML()', () => {
         done();
     });
     it ('Scrape <table> <tr> <td> <th> `backgroud` attribute image', () => {
-        const htmlStr = '<table background="table.jpg"><tr background="../tr.jpg"><th background="../../th.jpg"></th><td background="./td.jpg"></td></tr></table>';
+        const htmlStr = '<table background="table.jpg"><tr background="../tr.jpg"><th background="../../th.jpg"></th><td background="./td.jpg"></td></tr></table><table></table>';
         const path = '/path/to/';
         const scraped = scraper.scrapeHTML(htmlStr, path);
         assert(scraped[0].match('/path/to/table.jpg'));
