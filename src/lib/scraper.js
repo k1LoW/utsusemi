@@ -15,6 +15,13 @@ class Scraper {
     scrapeHTML(htmlStr, path) {
         const dom = new JSDOM(htmlStr);
         const document = dom.window.document;
+        let doctype = '';
+        if (document.doctype) {
+            doctype = '<!DOCTYPE ' +
+                  document.doctype.name +
+                  (document.doctype.publicId?' PUBLIC "' +  document.doctype.publicId + '"':'') +
+                  (document.doctype.systemId?' "' + document.doctype.systemId + '"':'') + '>';
+        }
 
         let links = [];
 
@@ -46,7 +53,7 @@ class Scraper {
         const filtered = links.filter(function(element, index, array) {
             return array.indexOf(element) === index && element !== path;
         });
-        return [dom.serialize(), filtered];
+        return [doctype + document.documentElement.outerHTML, filtered];
     }
 
     scrapeCSS(cssStr, path) {
