@@ -7,6 +7,31 @@ const before = require('mocha').before;
 const assert = require('power-assert');
 const Scraper = require('../src/lib/scraper');
 
+describe('scraper.scrapeHTML()', () => {
+    let scraper;
+    let config;
+    before((done) => {
+        config = {targetHost: 'https://example.com'};
+        scraper = new Scraper(config);
+        done();
+    });
+    it ('Scrape <table> <tr> <td> <th> `backgroud` attribute image', () => {
+        const htmlStr = '<table background="table.jpg"><tr background="../tr.jpg"><th background="../../th.jpg"></th><td background="./td.jpg"></td></tr></table>';
+        const path = '/path/to/';
+        const scraped = scraper.scrapeHTML(htmlStr, path);
+        assert(scraped[0].match('/path/to/table.jpg'));
+        assert(scraped[0].match('/path/tr.jpg'));
+        assert(scraped[0].match('/th.jpg'));
+        assert(scraped[0].match('/path/to/td.jpg'));
+        assert(scraped[1].toString() === [
+            '/path/to/table.jpg',
+            '/path/tr.jpg',
+            '/th.jpg',
+            '/path/to/td.jpg'
+        ].toString());
+    });
+});
+
 describe('scraper.scrapeCSS()', () => {
     let scraper;
     let config;
