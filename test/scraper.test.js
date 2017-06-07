@@ -58,7 +58,9 @@ describe('scraper.scrapeCSS()', () => {
         const scraped = scraper.scrapeCSS(cssStr, path);
         assert(scraped[0].match('/img/logo.png'));
         assert(scraped[0].match('/path/img/title.png'));
-        assert(scraped[1].toString() === ['/img/logo.png', '/path/img/title.png'].toString());
+        assert(scraped[0].match('/path/to/img/same.png'));
+        assert(!scraped[0].match(/'img\/same\.png'/));
+        assert(scraped[1].toString() === ['/img/logo.png', '/path/img/title.png', '/path/to/img/same.png'].toString());
     });
     it ('Scrape valid CSS with `@import`', () => {
         const cssStr = fs.readFileSync(__dirname + '/fixtures/valid_with_import.css', 'utf8');
@@ -102,7 +104,9 @@ describe('scraper.scrapeCSS()', () => {
         const scraped = scraper.scrapeCSS(cssStr, path);
         assert(scraped[0].match('/img/logo.png'));
         assert(scraped[0].match('/path/img/title.png'));
-        assert(scraped[1].toString() === ['/img/logo.png', '/path/img/title.png'].toString());
+        assert(scraped[0].match('/path/to/img/same.png'));
+        assert(!scraped[0].match(/'img\/same\.png'/));
+        assert(scraped[1].toString() === ['/img/logo.png', '/path/img/title.png', '/path/to/img/same.png'].toString());
     });
     it ('Scrape invalid CSS with `@import`', () => {
         const cssStr = fs.readFileSync(__dirname + '/fixtures/invalid_with_import.css', 'utf8');

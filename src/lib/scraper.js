@@ -86,7 +86,7 @@ class Scraper {
                     let relative = str.replace(/url\("?'?([^'")]+)"?'?\)/, '$1');
                     if (relative && url.resolve(this.config.targetHost, relative).match(this.config.targetHost)) {
                         let absolute = url.resolve(this.config.targetHost + path, relative).replace(this.config.targetHost,'');
-                        cssStr = cssStr.replace(relative, absolute);
+                        cssStr = cssStr.replace(new RegExp(`([\("'])${relative}([\)"'])`), `$1${absolute}$2`);
                         links.push(this.utsusemi.realPath(absolute));
                     }
                 });
