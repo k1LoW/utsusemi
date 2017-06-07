@@ -25,6 +25,16 @@ class Scraper {
                 links.push(this.utsusemi.realPath(absolute));
             }
         });
+        document.querySelectorAll('table,tr,td,th').forEach((el) => {
+            // <table> <tr> <td> <th> `backgroud` attribute
+            let attr = el.attributes.getNamedItem('background');
+            if (attr && attr.nodeValue && url.resolve(this.config.targetHost, attr.nodeValue).match(this.config.targetHost)) {
+                let absolute = url.resolve(this.config.targetHost + path, attr.nodeValue).replace(this.config.targetHost,'');
+                attr.nodeValue = this.utsusemi.path(absolute);
+                el.attributes.setNamedItem(attr);
+                links.push(this.utsusemi.realPath(absolute));
+            }
+        });
         document.querySelectorAll('img,script,input,iframe').forEach((el) => {
             if (el.src && url.resolve(this.config.targetHost, el.src).match(this.config.targetHost)) {
                 let absolute = url.resolve(this.config.targetHost + path, el.src).replace(this.config.targetHost,'');
