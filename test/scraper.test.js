@@ -60,7 +60,7 @@ describe('scraper.scrapeCSS()', () => {
         assert(scraped[0].match('/path/img/title.png'));
         assert(scraped[1].toString() === ['/img/logo.png', '/path/img/title.png'].toString());
     });
-    it ('Scrape valid CSS with `import`', () => {
+    it ('Scrape valid CSS with `@import`', () => {
         const cssStr = fs.readFileSync(__dirname + '/fixtures/valid_with_import.css', 'utf8');
         const path = '/path/to/';
         const scraped = scraper.scrapeCSS(cssStr, path);
@@ -69,6 +69,25 @@ describe('scraper.scrapeCSS()', () => {
         assert(scraped[0].match('/path/css/sub.css'));
         assert(scraped[0].match('/path/css/style.css'));
         assert(scraped[1].toString() === ['/css/common.css', '/css/reset.css', '/path/css/sub.css', '/path/css/style.css'].toString());
+    });
+    it ('Scrape valid CSS with `@font-face`', () => {
+        const cssStr = fs.readFileSync(__dirname + '/fixtures/valid_with_font-face.css', 'utf8');
+        const path = '/path/to/';
+        const scraped = scraper.scrapeCSS(cssStr, path);
+        assert(scraped[0].match('/path/to/webfont.eot'));
+        assert(scraped[0].match('/path/to/webfont-utsusemi-7b7d.eot'));
+        assert(scraped[0].match('/path/webfont.woff2'));
+        assert(scraped[0].match('/path/webfont.woff'));
+        assert(scraped[0].match('/webfont.ttf'));
+        assert(scraped[0].match('/webfont.svg'));
+        assert(scraped[1].toString() === [
+            '/path/to/webfont.eot',
+            '/path/to/webfont.eot?',
+            '/path/webfont.woff2',
+            '/path/webfont.woff',
+            '/webfont.ttf',
+            '/webfont.svg'
+        ].toString());
     });
     it ('Scrape invalid CSS', () => {
         const cssStr = fs.readFileSync(__dirname + '/fixtures/invalid.css', 'utf8');
@@ -85,7 +104,7 @@ describe('scraper.scrapeCSS()', () => {
         assert(scraped[0].match('/path/img/title.png'));
         assert(scraped[1].toString() === ['/img/logo.png', '/path/img/title.png'].toString());
     });
-    it ('Scrape invalid CSS with `import`', () => {
+    it ('Scrape invalid CSS with `@import`', () => {
         const cssStr = fs.readFileSync(__dirname + '/fixtures/invalid_with_import.css', 'utf8');
         const path = '/path/to/';
         const scraped = scraper.scrapeCSS(cssStr, path);
@@ -94,5 +113,24 @@ describe('scraper.scrapeCSS()', () => {
         assert(scraped[0].match('/path/css/sub.css'));
         assert(scraped[0].match('/path/css/style.css'));
         assert(scraped[1].toString() === ['/css/reset.css', '/path/css/style.css', '/css/common.css', '/path/css/sub.css'].toString());
+    });
+    it ('Scrape invalid CSS with `@font-face`', () => {
+        const cssStr = fs.readFileSync(__dirname + '/fixtures/valid_with_font-face.css', 'utf8');
+        const path = '/path/to/';
+        const scraped = scraper.scrapeCSS(cssStr, path);
+        assert(scraped[0].match('/path/to/webfont.eot'));
+        assert(scraped[0].match('/path/to/webfont-utsusemi-7b7d.eot'));
+        assert(scraped[0].match('/path/webfont.woff2'));
+        assert(scraped[0].match('/path/webfont.woff'));
+        assert(scraped[0].match('/webfont.ttf'));
+        assert(scraped[0].match('/webfont.svg'));
+        assert(scraped[1].toString() === [
+            '/path/to/webfont.eot',
+            '/path/to/webfont.eot?',
+            '/path/webfont.woff2',
+            '/path/webfont.woff',
+            '/webfont.ttf',
+            '/webfont.svg'
+        ].toString());
     });
 });
