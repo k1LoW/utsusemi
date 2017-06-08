@@ -7,17 +7,10 @@ const packageInfo = JSON.parse(fs.readFileSync(__dirname + '/../../package.json'
 const config = yaml.safeLoad(fs.readFileSync(__dirname + '/../../config.yml', 'utf8'));
 const serverlessConfig = yaml.safeLoad(fs.readFileSync(__dirname + '/../../serverless.yml', 'utf8'));
 const moment = require('moment');
-const aws = require('aws-sdk');
-aws.config.region = config.region;
-const s3 = new aws.S3({
-    apiVersion: '2006-03-01'
-});
-const lambda = new aws.Lambda({
-    region: config.region
-});
-const sqs = new aws.SQS({
-    apiVersion: '2012-11-05'
-});
+const aws = require('./aws')(config);
+const s3 = aws.s3;
+const lambda = aws.lambda;
+const sqs = aws.sqs;
 const functionS3Name = serverlessConfig.functions.s3worker.name
       .replace('${self:service}', serverlessConfig.service)
       .replace('${self:provider.stage}', serverlessConfig.provider.stage);

@@ -4,11 +4,8 @@ const logger = require('../lib/logger');
 const yaml = require('js-yaml');
 const fs = require('fs');
 const config = yaml.safeLoad(fs.readFileSync(__dirname + '/../../config.yml', 'utf8'));
-const aws = require('aws-sdk');
-aws.config.region = config.region;
-const s3 = new aws.S3({
-    apiVersion: '2006-03-01'
-});
+const aws = require('../lib/aws')(config);
+const s3 = aws.s3;
 const bucketName = config.bucketName;
 const Utsusemi = require('../lib/utsusemi');
 const utsusemi = new Utsusemi(config);

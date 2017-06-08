@@ -5,11 +5,8 @@ const yaml = require('js-yaml');
 const fs = require('fs');
 const config = yaml.safeLoad(fs.readFileSync(__dirname + '/../../config.yml', 'utf8'));
 const serverlessConfig = yaml.safeLoad(fs.readFileSync(__dirname + '/../../serverless.yml', 'utf8'));
-const aws = require('aws-sdk');
-aws.config.region = config.region;
-const sqs = new aws.SQS({
-    apiVersion: '2012-11-05'
-});
+const aws = require('../lib/aws')(config);
+const sqs = aws.sqs;
 const queueName = serverlessConfig.resources.Resources.Channel.Properties.QueueName
       .replace('${self:service}', serverlessConfig.service)
       .replace('${self:provider.stage}', serverlessConfig.provider.stage);

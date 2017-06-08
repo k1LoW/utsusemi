@@ -5,11 +5,8 @@ const yaml = require('js-yaml');
 const fs = require('fs');
 const config = yaml.safeLoad(fs.readFileSync(__dirname + '/../../config.yml', 'utf8'));
 const serverlessConfig = yaml.safeLoad(fs.readFileSync(__dirname + '/../../serverless.yml', 'utf8'));
-const aws = require('aws-sdk');
-aws.config.region = config.region;
-const lambda = new aws.Lambda({
-    region: config.region
-});
+const aws = require('../lib/aws')(config);
+const lambda = aws.lambda;
 const functionWorkerName = serverlessConfig.functions.worker.name
       .replace('${self:service}', serverlessConfig.service)
       .replace('${self:provider.stage}', serverlessConfig.provider.stage);
