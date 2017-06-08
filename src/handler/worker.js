@@ -60,7 +60,7 @@ module.exports.handler = (event, context, cb) => {
                         };
                         return Promise.all([
                             sqs.deleteMessage(queueParams).promise(),
-                            crawler.walk(message.path, message.depth, message.uuid)
+                            crawler.walk(message.path, message.depth, message.uuid, message.force)
                         ]);
                     });
                     return Promise.all(threads);

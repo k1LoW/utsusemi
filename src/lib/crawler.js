@@ -36,7 +36,7 @@ const jschardet = require('jschardet');
 const iconv = require('iconv-lite');
 
 const crawler = {
-    walk: (path, depth, uuid) => {
+    walk: (path, depth, uuid, force) => {
         logger.debug('walk: ' + path);
         return Promise.resolve()
             .then(() => {
@@ -52,13 +52,6 @@ const crawler = {
                     }];
                 }
 
-                const bucketKey = utsusemi.bucketKey(path);
-
-                const objectParams = {
-                    Bucket: bucketName,
-                    Key: bucketKey
-                };
-
                 let headers = {
                     'User-Agent': `utsusemi/${packageInfo.version}`
                 };
@@ -67,45 +60,11 @@ const crawler = {
                     headers['User-Agent'] = config.crawlerUserAgent;
                 }
 
-                return s3.getObjectTagging(objectParams).promise()
-                    .then((data) => {
-                        // Object exist
-                        let status = {};
-                        data.TagSet.forEach((tag) => {
-                            status[tag.Key] = tag.Value;
-                        });
-                        // Check uuid & depth
-                        if (status.uuid === uuid && status.depth >= depth) {
-                            logger.debug('status.uuid === uuid && status.depth >= depth: ' + path);
-                            return true;
-                        }
-                        // Check expires
-                        if (status.expires > moment().unix()){
-                            if (status.contentType.match(/(html|css)/)) {
-                                // HTML or CSS
-                                return lambda.invoke({
-                                    FunctionName: functionS3Name,
-                                    InvocationType: 'Event',
-                                    Payload: JSON.stringify({
-                                        path: path,
-                                        depth: depth,
-                                        uuid: uuid,
-                                        contentType: status.contentType
-                                    })
-                                }).promise().then(() => {
-                                    return true;
-                                }).catch((err) => {
-                                    logger.error(err);
-                                    throw err;
-                                });
-                            }
-                        }
-                        // Set If-None-Match to headers by etag
-                        if (status.etag !== '-') {
-                            headers['If-None-Match'] = status.etag;
-                        }
-                        // Set If-Modified-Since to headers by lastModified
-                        headers['If-Modified-Since'] = moment(status.lastModified, 'X').toDate().toUTCString();
+                const bucketKey = utsusemi.bucketKey(path);
+
+                let startPromise;
+                if (force) {
+                    startPromise = Promise.resolve().then(() => {
                         const options = {
                             method: 'GET',
                             uri: targetHost + path,
@@ -113,7 +72,6 @@ const crawler = {
                             headers: headers,
                             resolveWithFullResponse: true
                         };
-
                         return request(options).then((res) => {
                             return res;
                         }).catch((err) => {
@@ -121,134 +79,198 @@ const crawler = {
                             if ([403, 404, 410].includes(err.statusCode)) {
                                 return true;
                             }
-                            if (err.statusCode !== 304) {
+                            throw err;
+                        });
+                    });
+                } else {
+                    const objectParams = {
+                        Bucket: bucketName,
+                        Key: bucketKey
+                    };
+                    startPromise = s3.getObjectTagging(objectParams).promise()
+                        .then((data) => {
+                            // Object exist
+                            let status = {};
+                            data.TagSet.forEach((tag) => {
+                                status[tag.Key] = tag.Value;
+                            });
+                            // Check uuid & depth
+                            if (status.uuid === uuid && status.depth >= depth) {
+                                logger.debug('status.uuid === uuid && status.depth >= depth: ' + path);
+                                return true;
+                            }
+                            // Check expires
+                            if (status.expires > moment().unix()){
+                                if (status.contentType.match(/(html|css)/)) {
+                                    // HTML or CSS
+                                    return lambda.invoke({
+                                        FunctionName: functionS3Name,
+                                        InvocationType: 'Event',
+                                        Payload: JSON.stringify({
+                                            path: path,
+                                            depth: depth,
+                                            uuid: uuid,
+                                            contentType: status.contentType
+                                        })
+                                    }).promise().then(() => {
+                                        return true;
+                                    }).catch((err) => {
+                                        logger.error(err);
+                                        throw err;
+                                    });
+                                }
+                            }
+                            // Set If-None-Match to headers by etag
+                            if (status.etag !== '-') {
+                                headers['If-None-Match'] = status.etag;
+                            }
+                            // Set If-Modified-Since to headers by lastModified
+                            headers['If-Modified-Since'] = moment(status.lastModified, 'X').toDate().toUTCString();
+                            const options = {
+                                method: 'GET',
+                                uri: targetHost + path,
+                                encoding: null,
+                                headers: headers,
+                                resolveWithFullResponse: true
+                            };
+
+                            return request(options).then((res) => {
+                                return res;
+                            }).catch((err) => {
+                                // Check statusCode
+                                if ([403, 404, 410].includes(err.statusCode)) {
+                                    return true;
+                                }
+                                if (err.statusCode !== 304) {
+                                    throw err;
+                                }
+                                if (status.contentType.match(/(html|css)/)) {
+                                    // HTML or CSS
+                                    return lambda.invoke({
+                                        FunctionName: functionS3Name,
+                                        InvocationType: 'Event',
+                                        Payload: JSON.stringify({
+                                            path: path,
+                                            depth: depth,
+                                            uuid: uuid,
+                                            contentType: status.contentType
+                                        })
+                                    }).promise().then(() => {
+                                        return true;
+                                    }).catch((err) => {
+                                        logger.error(err);
+                                        throw err;
+                                    });
+                                }
+                                return true;
+                            });
+                        })
+                        .catch((err) => {
+                            // Object not exist
+                            if (err.code !== 'NoSuchKey') {
                                 throw err;
                             }
-                            if (status.contentType.match(/(html|css)/)) {
-                                // HTML or CSS
-                                return lambda.invoke({
-                                    FunctionName: functionS3Name,
-                                    InvocationType: 'Event',
-                                    Payload: JSON.stringify({
-                                        path: path,
-                                        depth: depth,
-                                        uuid: uuid,
-                                        contentType: status.contentType
-                                    })
-                                }).promise().then(() => {
-                                    return true;
-                                }).catch((err) => {
-                                    logger.error(err);
-                                    throw err;
-                                });
-                            }
-                            return true;
-                        });
-                    })
-                    .catch((err) => {
-                        // Object not exist
-                        if (err.code !== 'NoSuchKey') {
-                            throw err;
-                        }
-                        const options = {
-                            method: 'GET',
-                            uri: targetHost + path,
-                            encoding: null,
-                            headers: headers,
-                            resolveWithFullResponse: true
-                        };
-                        return request(options).then((res) => {
-                            return res;
-                        }).catch((err) => {
-                            // Check statusCode
-                            if ([403, 404, 410].includes(err.statusCode)) {
-                                return true;
-                            }
-                            throw err;
-                        });
-                    })
-                    .then((res) => {
-                        if (res === true) {
-                            return true;
-                        }
-                        let contentType = 'text/html';
-                        let now = moment().unix();
-                        let expires = now;
-                        let etag = '-';
-                        let lastModified = now;
-                        for(let h in res.headers) {
-                            if (h.toLowerCase() === 'Content-Type'.toLowerCase()) {
-                                contentType = res.headers[h].replace(/;.*$/, '');
-                            }
-                            if (h.toLowerCase() === 'Expires'.toLowerCase()) {
-                                expires = moment(res.headers[h]).unix();
-                            }
-                            if (h.toLowerCase() === 'Etag'.toLowerCase()) {
-                                etag = res.headers[h].replace(/"/g,'');
-                            }
-                            if (h.toLowerCase() === 'Last-Modified'.toLowerCase()) {
-                                lastModified = moment(res.headers[h]).unix();
-                            }
-                        }
-                        const status = {
-                            contentType: contentType,
-                            expires: expires,
-                            etag: etag,
-                            lastModified: lastModified,
-                            depth: depth,
-                            uuid: uuid
-                        };
-
-                        const queueParams = {
-                            QueueName: queueName
-                        };
-
-                        if (!contentType.match(/(html|css)/)) {
-                            const objectParams = {
-                                Bucket: bucketName,
-                                Key: bucketKey,
-                                Body: res.body,
-                                ContentType: contentType,
-                                Tagging: querystring.stringify(status)
+                            const options = {
+                                method: 'GET',
+                                uri: targetHost + path,
+                                encoding: null,
+                                headers: headers,
+                                resolveWithFullResponse: true
                             };
-                            return Promise.all([
-                                [],
-                                sqs.getQueueUrl(queueParams).promise(),
-                                s3.putObject(objectParams).promise()
-                            ]);
-                        }
-                        let results = ['',[]];
-                        const detected = jschardet.detect(res.body);
-                        const decoded = iconv.decode(res.body, detected.encoding);
-                        if (contentType.match(/html/)) {
-                            results = scraper.scrapeHTML(decoded, path, targetHost);
-                        } else if (contentType.match(/css/)) {
-                            depth = 3; // !!!!
-                            results = scraper.scrapeCSS(decoded, path, targetHost);
-                        }
-                        const body = iconv.encode(results[0], detected.encoding);
-                        const filtered = results[1];
+                            return request(options).then((res) => {
+                                return res;
+                            }).catch((err) => {
+                                // Check statusCode
+                                if ([403, 404, 410].includes(err.statusCode)) {
+                                    return true;
+                                }
+                                throw err;
+                            });
+                        });
+                }
 
+                return startPromise.then((res) => {
+                    if (res === true) {
+                        return true;
+                    }
+                    let contentType = 'text/html';
+                    let now = moment().unix();
+                    let expires = now;
+                    let etag = '-';
+                    let lastModified = now;
+                    for(let h in res.headers) {
+                        if (h.toLowerCase() === 'Content-Type'.toLowerCase()) {
+                            contentType = res.headers[h].replace(/;.*$/, '');
+                        }
+                        if (h.toLowerCase() === 'Expires'.toLowerCase()) {
+                            expires = moment(res.headers[h]).unix();
+                        }
+                        if (h.toLowerCase() === 'Etag'.toLowerCase()) {
+                            etag = res.headers[h].replace(/"/g,'');
+                        }
+                        if (h.toLowerCase() === 'Last-Modified'.toLowerCase()) {
+                            lastModified = moment(res.headers[h]).unix();
+                        }
+                    }
+                    const status = {
+                        contentType: contentType,
+                        expires: expires,
+                        etag: etag,
+                        lastModified: lastModified,
+                        depth: depth,
+                        uuid: uuid
+                    };
+
+                    const queueParams = {
+                        QueueName: queueName
+                    };
+
+                    if (!contentType.match(/(html|css)/)) {
                         const objectParams = {
                             Bucket: bucketName,
                             Key: bucketKey,
-                            Body: body,
+                            Body: res.body,
                             ContentType: contentType,
                             Tagging: querystring.stringify(status)
                         };
                         return Promise.all([
-                            filtered,
+                            [],
                             sqs.getQueueUrl(queueParams).promise(),
                             s3.putObject(objectParams).promise()
                         ]);
-                    })
+                    }
+                    let results = ['',[]];
+                    const detected = jschardet.detect(res.body);
+                    const decoded = iconv.decode(res.body, detected.encoding);
+                    if (contentType.match(/html/)) {
+                        results = scraper.scrapeHTML(decoded, path, targetHost);
+                    } else if (contentType.match(/css/)) {
+                        depth = 3; // !!!!
+                        results = scraper.scrapeCSS(decoded, path, targetHost);
+                    }
+                    const body = iconv.encode(results[0], detected.encoding);
+                    const filtered = results[1];
+
+                    const objectParams = {
+                        Bucket: bucketName,
+                        Key: bucketKey,
+                        Body: body,
+                        ContentType: contentType,
+                        Tagging: querystring.stringify(status)
+                    };
+                    return Promise.all([
+                        filtered,
+                        sqs.getQueueUrl(queueParams).promise(),
+                        s3.putObject(objectParams).promise()
+                    ]);
+                })
                     .then((data) => {
                         if (data === true || depth - 1 === 0) {
                             return true;
                         }
                         const filtered = data[0];
                         const queueUrl = data[1].QueueUrl;
-                        return crawler.queue(path, depth, uuid, queueUrl, filtered);
+                        return crawler.queue(path, depth, uuid, queueUrl, filtered, force);
                     })
                     .then(() => {
                         return [200, {
@@ -312,7 +334,7 @@ const crawler = {
                         }
                         const filtered = data[0];
                         const queueUrl = data[1].QueueUrl;
-                        return crawler.queue(path, depth, uuid, queueUrl, filtered);
+                        return crawler.queue(path, depth, uuid, queueUrl, filtered, false);
                     })
                     .then(() => {
                         return [200, {
@@ -321,7 +343,7 @@ const crawler = {
                     });
             });
     },
-    queue: (path, depth, uuid, queueUrl, filtered) => {
+    queue: (path, depth, uuid, queueUrl, filtered, force = false) => {
         let queues = [];
         filtered.forEach((path) => {
             const cache = `/tmp/${utsusemi.path(path).replace(/\//g, '__dir__')}-${(depth - 1)}-${uuid}`;
@@ -334,7 +356,8 @@ const crawler = {
                 MessageBody: JSON.stringify({
                     path: path,
                     depth: depth - 1,
-                    uuid: uuid
+                    uuid: uuid,
+                    force: force
                 }),
                 QueueUrl: queueUrl
             };
