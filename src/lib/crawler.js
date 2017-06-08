@@ -270,7 +270,7 @@ const crawler = {
                         }
                         const filtered = data[0];
                         const queueUrl = data[1].QueueUrl;
-                        return crawler.queue(path, depth, uuid, queueUrl, filtered, force);
+                        return crawler.enqueue(path, depth, uuid, queueUrl, filtered, force);
                     })
                     .then(() => {
                         return [200, {
@@ -334,7 +334,7 @@ const crawler = {
                         }
                         const filtered = data[0];
                         const queueUrl = data[1].QueueUrl;
-                        return crawler.queue(path, depth, uuid, queueUrl, filtered, false);
+                        return crawler.enqueue(path, depth, uuid, queueUrl, filtered, false);
                     })
                     .then(() => {
                         return [200, {
@@ -343,7 +343,7 @@ const crawler = {
                     });
             });
     },
-    queue: (path, depth, uuid, queueUrl, filtered, force = false) => {
+    enqueue: (path, depth, uuid, queueUrl, filtered, force = false) => {
         let queues = [];
         filtered.forEach((path) => {
             const cache = `/tmp/${utsusemi.path(path).replace(/\//g, '__dir__')}-${(depth - 1)}-${uuid}`;

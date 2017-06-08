@@ -51,6 +51,14 @@ $ curl https://xxxxxxxxxx.execute-api.ap-northeast-1.amazonaws.com/v0/in?path=/&
 
 And, access `UtsusemiWebsiteURL`.
 
+#### `force` option
+
+Disable cache
+
+```console
+$ curl https://xxxxxxxxxx.execute-api.ap-northeast-1.amazonaws.com/v0/in?path=/&depth=3&force=1
+```
+
 ### Purge crawling queue `/purge`
 
 Cancel crawling.
