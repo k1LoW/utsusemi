@@ -20,8 +20,9 @@ module.exports.handler = (event, context, cb) => {
     const path = event.queryStringParameters && event.queryStringParameters.hasOwnProperty('path') ? event.queryStringParameters.path : null;
     const depth = event.queryStringParameters && event.queryStringParameters.hasOwnProperty('depth') ? event.queryStringParameters.depth : 1;
     const uuid = event.queryStringParameters && event.queryStringParameters.hasOwnProperty('uuid') ? event.queryStringParameters.uuid : uuidV4();
+    const force = event.queryStringParameters && event.queryStringParameters.hasOwnProperty('force') ? Boolean(event.queryStringParameters.force) : false;
 
-    crawler.walk(path, depth, uuid)
+    crawler.walk(path, depth, uuid, force)
         .then((data) => {
             const response = {
                 statusCode: data[0],
