@@ -77,18 +77,18 @@ describe('scraper.scrapeCSS()', () => {
         const path = '/path/to/';
         const scraped = scraper.scrapeCSS(cssStr, path);
         assert(scraped[0].match('/path/to/webfont.eot'));
-        assert(scraped[0].match('/path/to/webfont-utsusemi-7b7d.eot'));
+        assert(scraped[0].match('/path/to/webfont-utsusemi-7b7d.eot#iefix'));
         assert(scraped[0].match('/path/webfont.woff2'));
         assert(scraped[0].match('/path/webfont.woff'));
         assert(scraped[0].match('/webfont.ttf'));
-        assert(scraped[0].match('/webfont.svg'));
+        assert(scraped[0].match('/webfont.svg#svgFontName'));
         assert(scraped[1].toString() === [
             '/path/to/webfont.eot',
-            '/path/to/webfont.eot?',
+            '/path/to/webfont.eot?#iefix',
             '/path/webfont.woff2',
             '/path/webfont.woff',
             '/webfont.ttf',
-            '/webfont.svg'
+            '/webfont.svg#svgFontName'
         ].toString());
     });
     it ('Scrape invalid CSS', () => {
@@ -123,18 +123,18 @@ describe('scraper.scrapeCSS()', () => {
         const path = '/path/to/';
         const scraped = scraper.scrapeCSS(cssStr, path);
         assert(scraped[0].match('/path/to/webfont.eot'));
-        assert(scraped[0].match('/path/to/webfont-utsusemi-7b7d.eot'));
+        assert(scraped[0].match('/path/to/webfont-utsusemi-7b7d.eot#iefix'));
         assert(scraped[0].match('/path/webfont.woff2'));
         assert(scraped[0].match('/path/webfont.woff'));
         assert(scraped[0].match('/webfont.ttf'));
-        assert(scraped[0].match('/webfont.svg'));
+        assert(scraped[0].match('/webfont.svg#svgFontName'));
         assert(scraped[1].toString() === [
             '/path/to/webfont.eot',
-            '/path/to/webfont.eot?',
+            '/path/to/webfont.eot?#iefix',
             '/path/webfont.woff2',
             '/path/webfont.woff',
             '/webfont.ttf',
-            '/webfont.svg'
+            '/webfont.svg#svgFontName'
         ].toString());
     });
 });
