@@ -102,10 +102,6 @@ describe('utsusemi.bucketPrefix', () => {
     });
 });
 
-describe('utsusemi.bucketKey()', () => {
-
-});
-
 describe('config.forceTrailingSlash = true', () => {
     let utsusemi;
     let config;
@@ -131,5 +127,24 @@ describe('config.forceTrailingSlash = true', () => {
         assert(utsusemi.path('/work/?page=3') === '/work/-utsusemi-7b2270616765223a2233227d');
         assert(utsusemi.path('/work?page=3') === '/work/-utsusemi-7b2270616765223a2233227d');
         assert(utsusemi.realPath('/work/-utsusemi-7b2270616765223a2233227d') === '/work/?page=3');
+    });
+});
+
+describe('#hash', () => {
+    let utsusemi;
+    let config;
+    before((done) => {
+        config = {targetHost: 'https://example.com'};
+        utsusemi = new Utsusemi(config);
+        done();
+    });
+    it ('if path have #hash, return path() realPath() only set #hash', () => {
+        assert(utsusemi.path('/#hash') === '/#hash');
+        assert(utsusemi.realPath('/#hash') === '/#hash');
+        assert(utsusemi.bucketKey('/#hash') === 'index.html');
+        assert(utsusemi.bucketPrefix('/#hash') === '');
+
+        assert(utsusemi.path('/work/?page=3#hash') === '/work/-utsusemi-7b2270616765223a2233227d#hash');
+        assert(utsusemi.realPath('/work/-utsusemi-7b2270616765223a2233227d#hash') === '/work/?page=3#hash');
     });
 });

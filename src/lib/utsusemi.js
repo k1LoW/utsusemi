@@ -13,46 +13,50 @@ class Utsusemi {
     path(path) {
         path = path.replace(/\/\//g, '/');
         const parsed = url.parse(path, true, true);
+        const hash = parsed.hash ? parsed.hash : '';
         let pathArray = parsed.pathname.split('.');
         let ext = null;
         if (pathArray.length > 1) {
             ext = pathArray.pop();
         }
         if (!path.match(/\?/) || path.match(separator)) {
-            return this.fixSlash(path);
+            return this.fixSlash(path) + hash;
         }
         const hex = new Buffer(JSON.stringify(parsed.query), 'utf8').toString('hex');
         let utsusemiPath = this.fixSlash(pathArray.join('.')) + separator + hex;
         if (!ext) {
-            return decodeURIComponent(utsusemiPath);
+            return decodeURIComponent(utsusemiPath) + hash;
         }
-        return decodeURIComponent([utsusemiPath, ext].join('.'));
+        return decodeURIComponent([utsusemiPath, ext].join('.')) + hash;
     }
 
     realPath(utsusemiPath) {
-        let pathArray = utsusemiPath.split('.');
+        const parsed = url.parse(utsusemiPath, true, true);
+        const hash = parsed.hash ? parsed.hash : '';
+        let pathArray = utsusemiPath.replace(hash, '').split('.');
         let ext = null;
         if (pathArray.length > 1) {
             ext = pathArray.pop();
         }
         if (!utsusemiPath.match(separator)) {
-            return this.fixSlash(utsusemiPath);
+            return this.fixSlash(utsusemiPath) + hash;
         }
         let utsusemiPathFront = pathArray.join('.');
         let splitted = utsusemiPathFront.split(separator);
         const query = JSON.parse(new Buffer(splitted[1], 'hex').toString('utf8'));
         let path = this.fixSlash(splitted[0]);
         if (!ext) {
-            return path + '?' + querystring.stringify(query);
+            return path + '?' + querystring.stringify(query) + hash;
         }
-        return path + '.' + ext + '?' + querystring.stringify(query);
+        return path + '.' + ext + '?' + querystring.stringify(query) + hash;
     }
 
     bucketKey(path) {
-        if (path.match(/\?/)) {
-            return this.path(path).replace(/^\//, '');
-        }
         const parsed = url.parse(path, true, true);
+        const hash = parsed.hash ? parsed.hash : '';
+        if (path.match(/\?/)) {
+            return this.path(path).replace(/^\//, '').replace(hash, '');
+        }
         let pathname = parsed.pathname;
         if (pathname === '/') {
             pathname = 'index.html';
@@ -60,14 +64,16 @@ class Utsusemi {
         if (pathname.match(/\/$/)) {
             pathname = pathname + 'index.html';
         }
-        return pathname.replace(/^\//, '');
+        return pathname.replace(/^\//, '').replace(hash, '');
     }
 
     bucketPrefix(prefix) {
+        const parsed = url.parse(prefix, true, true);
+        const hash = parsed.hash ? parsed.hash : '';
         if (prefix.match(/\?/)) {
             return this.bucketKey(prefix);
         }
-        return prefix.replace(/^\//, '');
+        return prefix.replace(/^\//, '').replace(hash, '');
     }
 
     rule(rule, path) {
