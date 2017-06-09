@@ -191,10 +191,20 @@ const crawler = {
                     let expires = now;
                     let etag = '-';
                     let lastModified = now;
+                    let redirectPromise = Promise.resolve();
                     if (res.request.uri.href !== targetHost + path) {
+                        // Redirect
                         let redirectPath = res.request.uri.href.replace(targetHost, '');
-                        let redirectBucketKey = utsusemi.bucketKey(path);
+                        let redirectBucketKey = utsusemi.bucketKey(redirectPath);
                         logger.debug('redirectPath: ' + redirectPath);
+                        logger.debug('redirectBucketKey: ' + redirectBucketKey);
+                        const redirectObjectParams = {
+                            Body: '',
+                            Bucket: bucketName,
+                            Key: bucketKey,
+                            WebsiteRedirectLocation: redirectPath
+                        };
+                        redirectPromise = s3.putObject(redirectObjectParams).promise();
                         path = redirectPath;
                         bucketKey = redirectBucketKey;
                     }
@@ -236,7 +246,8 @@ const crawler = {
                         return Promise.all([
                             [],
                             sqs.getQueueUrl(queueParams).promise(),
-                            s3.putObject(objectParams).promise()
+                            s3.putObject(objectParams).promise(),
+                            redirectPromise
                         ]);
                     }
                     let results = ['',[]];
@@ -261,7 +272,8 @@ const crawler = {
                     return Promise.all([
                         filtered,
                         sqs.getQueueUrl(queueParams).promise(),
-                        s3.putObject(objectParams).promise()
+                        s3.putObject(objectParams).promise(),
+                        redirectPromise
                     ]);
                 })
                     .then((data) => {
