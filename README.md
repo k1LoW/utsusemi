@@ -75,6 +75,12 @@ Delete S3 object.
 $ curl https://xxxxxxxxxx.execute-api.ap-northeast-1.amazonaws.com/v0/delete?path=/
 ```
 
+### Show crawling queue status `/status`
+
+```console
+$ curl https://xxxxxxxxxx.execute-api.ap-northeast-1.amazonaws.com/v0/status
+```
+
 ## Architecture
 
 ![Architecture](architecture.png)

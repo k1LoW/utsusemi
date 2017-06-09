@@ -68,6 +68,13 @@ functions:
           path: /delete
           method: get
           integration: lambda-proxy
+  status:
+    handler: src/handler/status.handler
+    events:
+      - http:
+          path: /status
+          method: get
+          integration: lambda-proxy
   worker:
     handler: src/handler/worker.handler
     timeout: 15
