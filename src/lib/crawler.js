@@ -53,7 +53,7 @@ const crawler = {
                     headers['User-Agent'] = config.crawlerUserAgent;
                 }
 
-                const bucketKey = utsusemi.bucketKey(path);
+                let bucketKey = utsusemi.bucketKey(path);
 
                 let startPromise;
                 if (force) {
@@ -191,6 +191,13 @@ const crawler = {
                     let expires = now;
                     let etag = '-';
                     let lastModified = now;
+                    if (res.request.uri.href !== targetHost + path) {
+                        let redirectPath = res.request.uri.href.replace(targetHost, '');
+                        let redirectBucketKey = utsusemi.bucketKey(path);
+                        logger.debug('redirectPath: ' + redirectPath);
+                        path = redirectPath;
+                        bucketKey = redirectBucketKey;
+                    }
                     for(let h in res.headers) {
                         if (h.toLowerCase() === 'Content-Type'.toLowerCase()) {
                             contentType = res.headers[h].replace(/;.*$/, '');
