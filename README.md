@@ -1,5 +1,7 @@
 # utsusemi [![Build Status](https://travis-ci.org/k1LoW/utsusemi.svg?branch=master)](https://travis-ci.org/k1LoW/utsusemi)
 
+![logo](logo.png)
+
 utsusemi = "[空蝉](http://ffxiclopedia.wikia.com/wiki/Utsusemi)"
 
 A tool to generate a static website by crawling the original site.
