@@ -77,10 +77,10 @@ const crawler = {
                                 // Delete object if exist
                                 return s3.headObject(deleteParams).promise().then(() => {
                                     return s3.deleteObject(deleteParams).promise().then(() => {
-                                        return true;
+                                        return Promise.resolve(true);
                                     });
                                 }).catch(() => {
-                                    return true;
+                                    return Promise.resolve(true);
                                 });
                             }
                             throw err;
@@ -101,7 +101,7 @@ const crawler = {
                             // Check uuid & depth
                             if (status.uuid === uuid && status.depth >= depth) {
                                 logger.debug('status.uuid === uuid && status.depth >= depth: ' + path);
-                                return true;
+                                return Promise.resolve(true);
                             }
                             // Check expires
                             if (status.expires > moment().unix()){
@@ -117,7 +117,7 @@ const crawler = {
                                             contentType: status.contentType
                                         })
                                     }).promise().then(() => {
-                                        return true;
+                                        return Promise.resolve(true);
                                     }).catch((err) => {
                                         logger.error(err);
                                         throw err;
@@ -150,10 +150,10 @@ const crawler = {
                                     // Delete object if exist
                                     return s3.headObject(deleteParams).promise().then(() => {
                                         return s3.deleteObject(deleteParams).promise().then(() => {
-                                            return true;
+                                            return Promise.resolve(true);
                                         });
                                     }).catch(() => {
-                                        return true;
+                                        return Promise.resolve(true);
                                     });
                                 }
                                 if (err.statusCode !== 304) {
@@ -171,13 +171,13 @@ const crawler = {
                                             contentType: status.contentType
                                         })
                                     }).promise().then(() => {
-                                        return true;
+                                        return Promise.resolve(true);
                                     }).catch((err) => {
                                         logger.error(err);
                                         throw err;
                                     });
                                 }
-                                return true;
+                                return Promise.resolve(true);
                             });
                         })
                         .catch((err) => {
@@ -197,7 +197,18 @@ const crawler = {
                             }).catch((err) => {
                                 // Check statusCode
                                 if ([403, 404, 410].includes(err.statusCode)) {
-                                    return true;
+                                    const deleteParams = {
+                                        Bucket: bucketName,
+                                        Key: bucketKey
+                                    };
+                                    // Delete object if exist
+                                    return s3.headObject(deleteParams).promise().then(() => {
+                                        return s3.deleteObject(deleteParams).promise().then(() => {
+                                            return Promise.resolve(true);
+                                        });
+                                    }).catch(() => {
+                                        return Promise.resolve(true);
+                                    });
                                 }
                                 throw err;
                             });
@@ -206,7 +217,7 @@ const crawler = {
 
                 return startPromise.then((res) => {
                     if (res === true) {
-                        return true;
+                        return Promise.resolve(true);
                     }
                     let contentType = 'text/html';
                     let now = moment().unix();
@@ -300,7 +311,7 @@ const crawler = {
                 })
                     .then((data) => {
                         if (data === true || depth - 1 === 0) {
-                            return true;
+                            return Promise.resolve(true);
                         }
                         const filtered = data[0];
                         const queueUrl = data[1].QueueUrl;
@@ -364,7 +375,7 @@ const crawler = {
                     })
                     .then((data) => {
                         if (data === true || depth - 1 === 0) {
-                            return true;
+                            return Promise.resolve(true);
                         }
                         const filtered = data[0];
                         const queueUrl = data[1].QueueUrl;
