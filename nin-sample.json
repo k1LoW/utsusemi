@@ -1,0 +1,4 @@
+[
+  {"action": "delete", "prefix": "/blog/4"},
+  {"action": "in", "path": "/blog", "depth": 3, "force": true}
+]

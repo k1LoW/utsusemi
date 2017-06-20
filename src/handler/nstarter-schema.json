@@ -1,0 +1,35 @@
+{
+  "id": "https://raw.githubusercontent.com/k1LoW/utsusemi/master/src/handler/schema.json#",
+  "description": "nin",
+  "type": "array",
+  "items": {
+    "anyOf" : [
+      { "in": { "$ref":"#/definitions/in" } },
+      { "delete": { "$ref":"#/definitions/delete" } }
+    ]
+  },
+  "definitions": {
+    "in": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "action": {
+          "enum": ["path"]
+        },
+        "path": {"type": "string"},
+        "depth": {"type": "number"},
+        "force": {"type": "boolean"}
+      }
+    },
+    "delete": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "action": {
+          "enum": ["delete"]
+        },
+        "prefix": {"type": "string"}
+      }
+    }
+  }
+}
