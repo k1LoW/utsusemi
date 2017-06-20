@@ -8,7 +8,7 @@ const serverlessConfig = yaml.safeLoad(fs.readFileSync(__dirname + '/../../serve
 const aws = require('../lib/aws')(config);
 const lambda = aws.lambda;
 const sqs = aws.sqs;
-const functionWorkerName = serverlessConfig.functions.worker.name
+const workerFunctionName = serverlessConfig.functions.worker.name
       .replace('${self:service}', serverlessConfig.service)
       .replace('${self:provider.stage}', serverlessConfig.provider.stage);
 const queueName = serverlessConfig.resources.Resources.Channel.Properties.QueueName
@@ -67,7 +67,7 @@ module.exports.handler = (event, context, cb) => {
             }
             logger.debug('Re invoke worker');
             return lambda.invoke({
-                FunctionName: functionWorkerName,
+                FunctionName: workerFunctionName,
                 InvocationType: 'Event',
                 Payload: JSON.stringify({
                 })

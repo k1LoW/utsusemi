@@ -63,6 +63,7 @@ functions:
   delete:
     handler: src/handler/delete.handler
     timeout: 30
+    name: ${self:service}-${self:provider.stage}-delete
     events:
       - http:
           path: /delete
@@ -74,6 +75,13 @@ functions:
       - http:
           path: /status
           method: get
+          integration: lambda-proxy
+  nstarter:
+    handler: src/handler/nstarter.handler
+    events:
+      - http:
+          path: /nin
+          method: post
           integration: lambda-proxy
   worker:
     handler: src/handler/worker.handler
