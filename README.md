@@ -83,6 +83,14 @@ $ curl https://xxxxxxxxxx.execute-api.ap-northeast-1.amazonaws.com/v0/delete?pat
 $ curl https://xxxxxxxxxx.execute-api.ap-northeast-1.amazonaws.com/v0/status
 ```
 
+### Set N crawling action `POST /nin`
+
+Start crawling to targetHost with N crawling action.
+
+```console
+$ curl -X POST -H "Content-Type: application/json" -d @nin-sample.json https://xxxxxxxxxx.execute-api.ap-northeast-1.amazonaws.com/v0/nin
+```
+
 ## Architecture
 
 ![Architecture](architecture.png)
