@@ -11,7 +11,7 @@ const aws = require('./aws')(config);
 const s3 = aws.s3;
 const lambda = aws.lambda;
 const sqs = aws.sqs;
-const functionS3Name = serverlessConfig.functions.s3worker.name
+const s3workerFunctionName = serverlessConfig.functions.s3worker.name
       .replace('${self:service}', serverlessConfig.service)
       .replace('${self:provider.stage}', serverlessConfig.provider.stage);
 const targetHost = config.targetHost;
@@ -108,7 +108,7 @@ const crawler = {
                                 if (status.contentType.match(/(html|css)/)) {
                                     // HTML or CSS
                                     return lambda.invoke({
-                                        FunctionName: functionS3Name,
+                                        FunctionName: s3workerFunctionName,
                                         InvocationType: 'Event',
                                         Payload: JSON.stringify({
                                             path: path,
@@ -162,7 +162,7 @@ const crawler = {
                                 if (status.contentType.match(/(html|css)/)) {
                                     // HTML or CSS
                                     return lambda.invoke({
-                                        FunctionName: functionS3Name,
+                                        FunctionName: s3workerFunctionName,
                                         InvocationType: 'Event',
                                         Payload: JSON.stringify({
                                             path: path,
