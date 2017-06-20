@@ -70,7 +70,18 @@ const crawler = {
                         }).catch((err) => {
                             // Check statusCode
                             if ([403, 404, 410].includes(err.statusCode)) {
-                                return true;
+                                const deleteParams = {
+                                    Bucket: bucketName,
+                                    Key: bucketKey
+                                };
+                                // Delete object if exist
+                                return s3.headObject(deleteParams).promise().then(() => {
+                                    return s3.deleteObject(deleteParams).promise().then(() => {
+                                        return true;
+                                    });
+                                }).catch(() => {
+                                    return true;
+                                });
                             }
                             throw err;
                         });
@@ -132,7 +143,18 @@ const crawler = {
                             }).catch((err) => {
                                 // Check statusCode
                                 if ([403, 404, 410].includes(err.statusCode)) {
-                                    return true;
+                                    const deleteParams = {
+                                        Bucket: bucketName,
+                                        Key: bucketKey
+                                    };
+                                    // Delete object if exist
+                                    return s3.headObject(deleteParams).promise().then(() => {
+                                        return s3.deleteObject(deleteParams).promise().then(() => {
+                                            return true;
+                                        });
+                                    }).catch(() => {
+                                        return true;
+                                    });
                                 }
                                 if (err.statusCode !== 304) {
                                     throw err;
