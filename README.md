@@ -100,3 +100,4 @@ $ curl -X POST -H "Content-Type: application/json" -d @nin-sample.json https://x
 - HTML -> `depth = depth - 1`
 - CSS -> The source request in the CSS does not consume `depth`.
 - Other contents -> End ( `depth = 0` )
+- 403, 404, 410 -> Delete S3 object
