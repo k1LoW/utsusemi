@@ -6,7 +6,8 @@
   "scripts": {
     "deploy": "npm install && sls deploy -v",
     "destroy": "sls remove",
-    "test": "nyc --reporter=lcovonly mocha --recursive --require intelli-espower-loader; nyc report"
+    "test": "nyc --reporter=lcovonly mocha --recursive --require intelli-espower-loader; nyc report",
+    "info": "sls info"
   },
   "directories": {
     "test": "test/"
