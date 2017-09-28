@@ -3,9 +3,8 @@
 const logger = require('../lib/logger');
 const yaml = require('js-yaml');
 const fs = require('fs');
-const config = yaml.safeLoad(fs.readFileSync(__dirname + '/../../config.yml', 'utf8'));
 const serverlessConfig = yaml.safeLoad(fs.readFileSync(__dirname + '/../../serverless.yml', 'utf8'));
-const aws = require('../lib/aws')(config);
+const aws = require('../lib/aws')();
 const sqs = aws.sqs;
 const queueName = serverlessConfig.resources.Resources.Channel.Properties.QueueName
       .replace('${self:service}', serverlessConfig.service)

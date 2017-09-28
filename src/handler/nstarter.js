@@ -3,9 +3,8 @@
 const logger = require('../lib/logger');
 const yaml = require('js-yaml');
 const fs = require('fs');
-const config = yaml.safeLoad(fs.readFileSync(__dirname + '/../../config.yml', 'utf8'));
 const serverlessConfig = yaml.safeLoad(fs.readFileSync(__dirname + '/../../serverless.yml', 'utf8'));
-const aws = require('../lib/aws')(config);
+const aws = require('../lib/aws')();
 const lambda = aws.lambda;
 const starterFunctionName = serverlessConfig.functions.starter.name
       .replace('${self:service}', serverlessConfig.service)

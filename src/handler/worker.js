@@ -3,9 +3,8 @@
 const logger = require('../lib/logger');
 const yaml = require('js-yaml');
 const fs = require('fs');
-const config = yaml.safeLoad(fs.readFileSync(__dirname + '/../../config.yml', 'utf8'));
 const serverlessConfig = yaml.safeLoad(fs.readFileSync(__dirname + '/../../serverless.yml', 'utf8'));
-const aws = require('../lib/aws')(config);
+const aws = require('../lib/aws')();
 const lambda = aws.lambda;
 const sqs = aws.sqs;
 const workerFunctionName = serverlessConfig.functions.worker.name
@@ -21,7 +20,7 @@ module.exports.handler = (event, context, cb) => {
     const queueParams = {
         QueueName: queueName
     };
-    let delay = config.workerDelay;
+    let delay = process.env.UTSUSEMI_WORKER_DELAY;
     if (event.start) {
         // To wait for queue completion to SQS
         delay += 3000;
@@ -34,7 +33,7 @@ module.exports.handler = (event, context, cb) => {
                     logger.debug('queueUrl: ' + queueUrl);
                     const queueParams = {
                         QueueUrl: queueUrl,
-                        MaxNumberOfMessages: config.threadsPerWorker
+                        MaxNumberOfMessages: process.env.UTSUSEMI_THREADS_PER_WORKER
                     };
                     return Promise.all([
                         queueUrl,

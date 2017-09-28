@@ -1,15 +1,23 @@
-service: utsusemi
-
-custom:
-  config: ${file(./config.yml)}
+service: ${self:provider.environment.UTSUSEMI_SERVICE_NAME}
 
 frameworkVersion: ">=1.23.0 <2.0.0"
 
 provider:
   name: aws
+  environment:
+    UTSUSEMI_STAGE: ${env:UTSUSEMI_STAGE, 'v0'}
+    UTSUSEMI_SERVICE_NAME: ${env:UTSUSEMI_SERVICE_NAME, file(./config.yml):serviceName, 'utsusemi'}
+    UTSUSEMI_REGION: ${env:UTSUSEMI_REGION, file(./config.yml):region, 'ap-northeast-1'}
+    UTSUSEMI_TARGET_HOST: ${env:UTSUSEMI_TARGET_HOST, file(./config.yml):targetHost}
+    UTSUSEMI_BUCKET_NAME: ${env:UTSUSEMI_BUCKET_NAME, file(./config.yml):bucketName}
+    UTSUSEMI_WORKER_PROCESS: ${env:UTSUSEMI_WORKER_PROCESS, file(./config.yml):workerProcess, '2'}
+    UTSUSEMI_WORKER_DELAY: ${env:UTSUSEMI_WORKER_DELAY, file(./config.yml):workerDelay, '2'}
+    UTSUSEMI_THREADS_PER_WORKER: ${env:UTSUSEMI_THREADS_PER_WORKER, file(./config.yml):threadsPerWorker, '5'}
+    UTSUSEMI_FORCE_TRAILING_SLASH: ${env:UTSUSEMI_FORCE_TRAILING_SLASH, file(./config.yml):forceTrailingSlash, '1'}
+    UTSUSEMI_CRAWLER_USER_AGENT: ${env:UTSUSEMI_CRAWLER_USER_AGENT, file(./config.yml):crawlerUserAgent, ''}
   runtime: nodejs6.10
-  stage: v0
-  region: ${self:custom.config.region}
+  stage: ${self:provider.environment.UTSUSEMI_STAGE}
+  region: ${self:provider.environment.UTSUSEMI_REGION}
   timeout: 10
   cfLogs: true
   apiKey: false
@@ -18,8 +26,8 @@ provider:
       Action:
         - "s3:*"
       Resource:
-        - { "Fn::Join" : ["", ["arn:aws:s3:::", "${self:custom.config.bucketName}"] ] }
-        - { "Fn::Join" : ["", ["arn:aws:s3:::", "${self:custom.config.bucketName}", "/*"] ] }
+        - { "Fn::Join" : ["", ["arn:aws:s3:::", "${self:provider.environment.UTSUSEMI_BUCKET_NAME}"] ] }
+        - { "Fn::Join" : ["", ["arn:aws:s3:::", "${self:provider.environment.UTSUSEMI_BUCKET_NAME}", "/*"] ] }
     - Effect: Allow
       Action:
         - "lambda:InvokeFunction"
@@ -31,6 +39,9 @@ provider:
         - "sqs:*"
       Resource:
         - '*'
+
+plugins:
+  - utsusemi-env-checker
 
 package:
   include:
@@ -96,7 +107,7 @@ resources:
     HostingBucket:
       Type: AWS::S3::Bucket
       Properties:
-        BucketName: ${self:custom.config.bucketName}
+        BucketName: ${self:provider.environment.UTSUSEMI_BUCKET_NAME}
         AccessControl: Private
         WebsiteConfiguration:
           IndexDocument: index.html

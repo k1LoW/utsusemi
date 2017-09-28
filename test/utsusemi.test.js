@@ -8,10 +8,9 @@ const Utsusemi = require('../src/lib/utsusemi');
 
 describe('utsusemi.path()', () => {
     let utsusemi;
-    let config;
     before((done) => {
-        config = {targetHost: 'https://example.com'};
-        utsusemi = new Utsusemi(config);
+        process.env.UTSUSEMI_TARGET_HOST = 'https://example.com';
+        utsusemi = new Utsusemi();
         done();
     });
     it ('if path do not have querystring, return original path', () => {
@@ -36,10 +35,9 @@ describe('utsusemi.path()', () => {
 
 describe('utsusemi.realPath()', () => {
     let utsusemi;
-    let config;
     before((done) => {
-        config = {targetHost: 'https://example.com'};
-        utsusemi = new Utsusemi(config);
+        process.env.UTSUSEMI_TARGET_HOST = 'https://example.com';
+        utsusemi = new Utsusemi();
         done();
     });
     it ('if path do not have querystring, return original path', () => {
@@ -58,10 +56,9 @@ describe('utsusemi.realPath()', () => {
 
 describe('utsusemi.bucketKey()', () => {
     let utsusemi;
-    let config;
     before((done) => {
-        config = {targetHost: 'https://example.com'};
-        utsusemi = new Utsusemi(config);
+        process.env.UTSUSEMI_TARGET_HOST = 'https://example.com';
+        utsusemi = new Utsusemi();
         done();
     });
     it ('if path do not have querystring, return S3 object key path', () => {
@@ -81,10 +78,9 @@ describe('utsusemi.bucketKey()', () => {
 
 describe('utsusemi.bucketPrefix', () => {
     let utsusemi;
-    let config;
     before((done) => {
-        config = {targetHost: 'https://example.com'};
-        utsusemi = new Utsusemi(config);
+        process.env.UTSUSEMI_TARGET_HOST = 'https://example.com';
+        utsusemi = new Utsusemi();
         done();
     });
     it ('if prefix do not have querystring, bucketPrefix return value of S3 bucket prefix', () => {
@@ -104,13 +100,10 @@ describe('utsusemi.bucketPrefix', () => {
 
 describe('config.forceTrailingSlash = true', () => {
     let utsusemi;
-    let config;
     before((done) => {
-        config = {
-            targetHost: 'https://example.com',
-            forceTrailingSlash: true
-        };
-        utsusemi = new Utsusemi(config);
+        process.env.UTSUSEMI_TARGET_HOST = 'https://example.com';
+        process.env.UTSUSEMI_FORCE_TRAILING_SLASH = '1';
+        utsusemi = new Utsusemi();
         done();
     });
     it ('if forceTrailingSlash = true, utsusemi.path() return set trailing slash', () => {
@@ -132,10 +125,9 @@ describe('config.forceTrailingSlash = true', () => {
 
 describe('#hash', () => {
     let utsusemi;
-    let config;
     before((done) => {
-        config = {targetHost: 'https://example.com'};
-        utsusemi = new Utsusemi(config);
+        process.env.UTSUSEMI_TARGET_HOST = 'https://example.com';
+        utsusemi = new Utsusemi();
         done();
     });
     it ('if path have #hash, return path() realPath() only set #hash', () => {

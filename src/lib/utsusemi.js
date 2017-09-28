@@ -6,10 +6,6 @@ const querystring = require('querystring');
 const separator = '-utsusemi-';
 
 class Utsusemi {
-    constructor(config) {
-        this.config = config;
-    }
-
     path(path) {
         path = path.replace(/\/\//g, '/');
         const parsed = url.parse(path, true, true);
@@ -81,8 +77,8 @@ class Utsusemi {
         if (rule.type === 'import') {
             let importStr = rule.import;
             let urli = importStr.replace(/(?:url\()?['"]*([^)'"]+)['"](?:\)?)/, '$1');
-            if (urli && url.resolve(this.config.targetHost, urli).match(this.config.targetHost)) {
-                let absolute = url.resolve(this.config.targetHost + path, urli).replace(this.config.targetHost,'');
+            if (urli && url.resolve(process.env.UTSUSEMI_TARGET_HOST, urli).match(process.env.UTSUSEMI_TARGET_HOST)) {
+                let absolute = url.resolve(process.env.UTSUSEMI_TARGET_HOST + path, urli).replace(process.env.UTSUSEMI_TARGET_HOST,'');
                 rule.import = importStr.replace(new RegExp(`${urli}`), this.path(absolute));
                 links.push(this.realPath(absolute));
             }
@@ -106,8 +102,8 @@ class Utsusemi {
             const matches = d.value.match(/url\(['"]*([^)'"]+)['"]*\)/g);
             matches.forEach((m) => {
                 let urlp = m.replace(/.*url\(['"]*([^)'"]+)['"]*\).*/, '$1');
-                if (urlp && url.resolve(this.config.targetHost, urlp).match(this.config.targetHost)) {
-                    let absolute = url.resolve(this.config.targetHost + path, urlp).replace(this.config.targetHost,'');
+                if (urlp && url.resolve(process.env.UTSUSEMI_TARGET_HOST, urlp).match(process.env.UTSUSEMI_TARGET_HOST)) {
+                    let absolute = url.resolve(process.env.UTSUSEMI_TARGET_HOST + path, urlp).replace(process.env.UTSUSEMI_TARGET_HOST,'');
                     d.value = d.value.replace(`${urlp}`, this.path(absolute));
                     links.push(this.realPath(absolute));
                 }
@@ -125,7 +121,7 @@ class Utsusemi {
             ext = pathArray.pop();
         }
         let fixed;
-        if (this.config.forceTrailingSlash && !ext) {
+        if (Number(process.env.UTSUSEMI_FORCE_TRAILING_SLASH) && !ext) {
             fixed = pathArray.join('.') + '/';
         } else if (!ext) {
             fixed = pathArray.join('.');
