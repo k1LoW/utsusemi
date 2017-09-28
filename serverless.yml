@@ -47,7 +47,6 @@ package:
   include:
     - package.json
     - serverless.yml
-    - config.yml
     - src/**
   exclude:
     - .git/**
