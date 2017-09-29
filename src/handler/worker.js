@@ -13,7 +13,7 @@ module.exports.handler = (event, context, cb) => {
     const queueParams = {
         QueueName: queueName
     };
-    let delay = process.env.UTSUSEMI_WORKER_DELAY;
+    let delay = Number(process.env.UTSUSEMI_WORKER_DELAY);
     if (event.start) {
         // To wait for queue completion to SQS
         delay += 3000;
@@ -26,7 +26,7 @@ module.exports.handler = (event, context, cb) => {
                     logger.debug('queueUrl: ' + queueUrl);
                     const queueParams = {
                         QueueUrl: queueUrl,
-                        MaxNumberOfMessages: process.env.UTSUSEMI_THREADS_PER_WORKER
+                        MaxNumberOfMessages: Number(process.env.UTSUSEMI_THREADS_PER_WORKER)
                     };
                     return Promise.all([
                         queueUrl,

@@ -27,7 +27,7 @@ module.exports.handler = (event, context, cb) => {
                 })
             };
             let workers = [];
-            for (let i = 0; i < process.env.UTSUSEMI_WORKER_PROCESS; i++) {
+            for (let i = 0; i < Number(process.env.UTSUSEMI_WORKER_PROCESS); i++) {
                 workers.push(lambda.invoke(lambdaParams).promise());
             }
             return Promise.all(workers)
