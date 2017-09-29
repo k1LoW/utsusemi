@@ -4,8 +4,8 @@ const logger = require('../lib/logger');
 const aws = require('../lib/aws')();
 const lambda = aws.lambda;
 const sqs = aws.sqs;
-const workerFunctionName = `${process.env.UTSUSEMI_SERVICE}-${process.env.UTSUSEMI_STAGE}-worker`;
-const queueName = `${process.env.UTSUSEMI_SERVICE}-${process.env.UTSUSEMI_STAGE}-Channel`;
+const workerFunctionName = `${process.env.UTSUSEMI_SERVICE_NAME}-${process.env.UTSUSEMI_STAGE}-worker`;
+const queueName = `${process.env.UTSUSEMI_SERVICE_NAME}-${process.env.UTSUSEMI_STAGE}-Channel`;
 const crawler = require('../lib/crawler');
 const sleep = require('sleep-promise');
 

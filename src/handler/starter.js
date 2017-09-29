@@ -3,7 +3,7 @@
 const logger = require('../lib/logger');
 const aws = require('../lib/aws')();
 const lambda = aws.lambda;
-const functionWorkerName = `${process.env.UTSUSEMI_SERVICE}-${process.env.UTSUSEMI_STAGE}-worker`;
+const functionWorkerName = `${process.env.UTSUSEMI_SERVICE_NAME}-${process.env.UTSUSEMI_STAGE}-worker`;
 const uuidV4 = require('uuid/v4');
 const crawler = require('../lib/crawler');
 

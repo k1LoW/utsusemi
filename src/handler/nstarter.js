@@ -3,8 +3,8 @@
 const logger = require('../lib/logger');
 const aws = require('../lib/aws')();
 const lambda = aws.lambda;
-const starterFunctionName = `${process.env.UTSUSEMI_SERVICE}-${process.env.UTSUSEMI_STAGE}-starter`;
-const deleteFunctionName = `${process.env.UTSUSEMI_SERVICE}-${process.env.UTSUSEMI_STAGE}-delete`;
+const starterFunctionName = `${process.env.UTSUSEMI_SERVICE_NAME}-${process.env.UTSUSEMI_STAGE}-starter`;
+const deleteFunctionName = `${process.env.UTSUSEMI_SERVICE_NAME}-${process.env.UTSUSEMI_STAGE}-delete`;
 const Ajv = require('ajv');
 const ajv = new Ajv();
 const schema = require('./nstarter-schema.json');

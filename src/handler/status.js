@@ -3,7 +3,7 @@
 const logger = require('../lib/logger');
 const aws = require('../lib/aws')();
 const sqs = aws.sqs;
-const queueName = `${process.env.UTSUSEMI_SERVICE}-${process.env.UTSUSEMI_STAGE}-Channel`;
+const queueName = `${process.env.UTSUSEMI_SERVICE_NAME}-${process.env.UTSUSEMI_STAGE}-Channel`;
 
 module.exports.handler = (event, context, cb) => {
     const queueParams = {
