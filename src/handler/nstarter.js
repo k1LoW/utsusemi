@@ -1,18 +1,10 @@
 'use strict';
 
 const logger = require('../lib/logger');
-const yaml = require('js-yaml');
-const fs = require('fs');
-const config = yaml.safeLoad(fs.readFileSync(__dirname + '/../../config.yml', 'utf8'));
-const serverlessConfig = yaml.safeLoad(fs.readFileSync(__dirname + '/../../serverless.yml', 'utf8'));
-const aws = require('../lib/aws')(config);
+const aws = require('../lib/aws')();
 const lambda = aws.lambda;
-const starterFunctionName = serverlessConfig.functions.starter.name
-      .replace('${self:service}', serverlessConfig.service)
-      .replace('${self:provider.stage}', serverlessConfig.provider.stage);
-const deleteFunctionName = serverlessConfig.functions.delete.name
-      .replace('${self:service}', serverlessConfig.service)
-      .replace('${self:provider.stage}', serverlessConfig.provider.stage);
+const starterFunctionName = `${process.env.UTSUSEMI_SERVICE_NAME}-${process.env.UTSUSEMI_STAGE}-starter`;
+const deleteFunctionName = `${process.env.UTSUSEMI_SERVICE_NAME}-${process.env.UTSUSEMI_STAGE}-delete`;
 const Ajv = require('ajv');
 const ajv = new Ajv();
 const schema = require('./nstarter-schema.json');

@@ -7,9 +7,8 @@ const { JSDOM } = jsdom;
 const Utsusemi = require('./utsusemi');
 
 class Scraper {
-    constructor(config) {
-        this.config = config;
-        this.utsusemi = new Utsusemi(config);
+    constructor() {
+        this.utsusemi = new Utsusemi();
     }
 
     scrapeHTML(htmlStr, path) {
@@ -26,8 +25,8 @@ class Scraper {
         let links = [];
 
         document.querySelectorAll('a,link').forEach((el) => {
-            if (el.href && url.resolve(this.config.targetHost, el.href).match(this.config.targetHost)) {
-                let absolute = url.resolve(this.config.targetHost + path, el.href).replace(this.config.targetHost,'');
+            if (el.href && url.resolve(process.env.UTSUSEMI_TARGET_HOST, el.href).match(process.env.UTSUSEMI_TARGET_HOST)) {
+                let absolute = url.resolve(process.env.UTSUSEMI_TARGET_HOST + path, el.href).replace(process.env.UTSUSEMI_TARGET_HOST,'');
                 el.href = this.utsusemi.path(absolute);
                 links.push(this.utsusemi.realPath(absolute));
             }
@@ -35,16 +34,16 @@ class Scraper {
         document.querySelectorAll('table,tr,td,th').forEach((el) => {
             // <table> <tr> <td> <th> `backgroud` attribute
             let attr = el.attributes.getNamedItem('background');
-            if (attr && attr.nodeValue && url.resolve(this.config.targetHost, attr.nodeValue).match(this.config.targetHost)) {
-                let absolute = url.resolve(this.config.targetHost + path, attr.nodeValue).replace(this.config.targetHost,'');
+            if (attr && attr.nodeValue && url.resolve(process.env.UTSUSEMI_TARGET_HOST, attr.nodeValue).match(process.env.UTSUSEMI_TARGET_HOST)) {
+                let absolute = url.resolve(process.env.UTSUSEMI_TARGET_HOST + path, attr.nodeValue).replace(process.env.UTSUSEMI_TARGET_HOST,'');
                 attr.nodeValue = this.utsusemi.path(absolute);
                 el.attributes.setNamedItem(attr);
                 links.push(this.utsusemi.realPath(absolute));
             }
         });
         document.querySelectorAll('img,script,input,iframe').forEach((el) => {
-            if (el.src && url.resolve(this.config.targetHost, el.src).match(this.config.targetHost)) {
-                let absolute = url.resolve(this.config.targetHost + path, el.src).replace(this.config.targetHost,'');
+            if (el.src && url.resolve(process.env.UTSUSEMI_TARGET_HOST, el.src).match(process.env.UTSUSEMI_TARGET_HOST)) {
+                let absolute = url.resolve(process.env.UTSUSEMI_TARGET_HOST + path, el.src).replace(process.env.UTSUSEMI_TARGET_HOST,'');
                 el.src = this.utsusemi.path(absolute);
                 links.push(this.utsusemi.realPath(absolute));
             }
@@ -84,8 +83,8 @@ class Scraper {
             if (matches !== null) {
                 matches.forEach ((str) => {
                     let relative = str.replace(/url\("?'?([^'")]+)"?'?\)/, '$1');
-                    if (relative && url.resolve(this.config.targetHost, relative).match(this.config.targetHost)) {
-                        let absolute = url.resolve(this.config.targetHost + path, relative).replace(this.config.targetHost,'');
+                    if (relative && url.resolve(process.env.UTSUSEMI_TARGET_HOST, relative).match(process.env.UTSUSEMI_TARGET_HOST)) {
+                        let absolute = url.resolve(process.env.UTSUSEMI_TARGET_HOST + path, relative).replace(process.env.UTSUSEMI_TARGET_HOST,'');
                         cssStr = cssStr.replace(new RegExp(`([\("'])${relative}([\)"'])`), `$1${absolute}$2`);
                         links.push(this.utsusemi.realPath(absolute));
                     }
@@ -101,8 +100,8 @@ class Scraper {
             if (matches !== null) {
                 matches.forEach ((str) => {
                     let relative = str.replace(/@import\s+["']([^'"]+)["']/, '$1');
-                    if (relative && url.resolve(this.config.targetHost, relative).match(this.config.targetHost)) {
-                        let absolute = url.resolve(this.config.targetHost + path, relative).replace(this.config.targetHost,'');
+                    if (relative && url.resolve(process.env.UTSUSEMI_TARGET_HOST, relative).match(process.env.UTSUSEMI_TARGET_HOST)) {
+                        let absolute = url.resolve(process.env.UTSUSEMI_TARGET_HOST + path, relative).replace(process.env.UTSUSEMI_TARGET_HOST,'');
                         cssStr = cssStr.replace(relative, absolute);
                         links.push(this.utsusemi.realPath(absolute));
                     }

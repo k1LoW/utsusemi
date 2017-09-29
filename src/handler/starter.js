@@ -1,15 +1,9 @@
 'use strict';
 
 const logger = require('../lib/logger');
-const yaml = require('js-yaml');
-const fs = require('fs');
-const config = yaml.safeLoad(fs.readFileSync(__dirname + '/../../config.yml', 'utf8'));
-const serverlessConfig = yaml.safeLoad(fs.readFileSync(__dirname + '/../../serverless.yml', 'utf8'));
-const aws = require('../lib/aws')(config);
+const aws = require('../lib/aws')();
 const lambda = aws.lambda;
-const functionWorkerName = serverlessConfig.functions.worker.name
-      .replace('${self:service}', serverlessConfig.service)
-      .replace('${self:provider.stage}', serverlessConfig.provider.stage);
+const functionWorkerName = `${process.env.UTSUSEMI_SERVICE_NAME}-${process.env.UTSUSEMI_STAGE}-worker`;
 const uuidV4 = require('uuid/v4');
 const crawler = require('../lib/crawler');
 
@@ -33,7 +27,7 @@ module.exports.handler = (event, context, cb) => {
                 })
             };
             let workers = [];
-            for (let i = 0; i < config.workerProcess; i++) {
+            for (let i = 0; i < Number(process.env.UTSUSEMI_WORKER_PROCESS); i++) {
                 workers.push(lambda.invoke(lambdaParams).promise());
             }
             return Promise.all(workers)

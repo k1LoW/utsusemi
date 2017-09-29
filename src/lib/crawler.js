@@ -1,30 +1,23 @@
 'use strict';
 
 const logger = require('./logger');
-const yaml = require('js-yaml');
 const fs = require('fs');
 const packageInfo = JSON.parse(fs.readFileSync(__dirname + '/../../package.json', 'utf8'));
-const config = yaml.safeLoad(fs.readFileSync(__dirname + '/../../config.yml', 'utf8'));
-const serverlessConfig = yaml.safeLoad(fs.readFileSync(__dirname + '/../../serverless.yml', 'utf8'));
 const moment = require('moment');
-const aws = require('./aws')(config);
+const aws = require('./aws')();
 const s3 = aws.s3;
 const lambda = aws.lambda;
 const sqs = aws.sqs;
-const s3workerFunctionName = serverlessConfig.functions.s3worker.name
-      .replace('${self:service}', serverlessConfig.service)
-      .replace('${self:provider.stage}', serverlessConfig.provider.stage);
-const targetHost = config.targetHost;
-const bucketName = config.bucketName;
-const queueName = serverlessConfig.resources.Resources.Channel.Properties.QueueName
-      .replace('${self:service}', serverlessConfig.service)
-      .replace('${self:provider.stage}', serverlessConfig.provider.stage);
+const s3workerFunctionName = `${process.env.UTSUSEMI_SERVICE_NAME}-${process.env.UTSUSEMI_STAGE}-s3worker`;
+const targetHost = process.env.UTSUSEMI_TARGET_HOST;
+const bucketName = process.env.UTSUSEMI_BUCKET_NAME;
+const queueName = `${process.env.UTSUSEMI_SERVICE_NAME}-${process.env.UTSUSEMI_STAGE}-Channel`;
 const request = require('request-promise-native');
 const querystring = require('querystring');
 const Scraper = require('./scraper');
-const scraper = new Scraper(config);
+const scraper = new Scraper();
 const Utsusemi = require('./utsusemi');
-const utsusemi = new Utsusemi(config);
+const utsusemi = new Utsusemi();
 const jschardet = require('jschardet');
 const iconv = require('iconv-lite');
 
@@ -48,9 +41,9 @@ const crawler = {
                 let headers = {
                     'User-Agent': `utsusemi/${packageInfo.version}`
                 };
-                if (config.crawlerUserAgent) {
+                if (process.env.UTSUSEMI_CRAWLER_USER_AGENT) {
                     // custom User-Agent
-                    headers['User-Agent'] = config.crawlerUserAgent;
+                    headers['User-Agent'] = process.env.UTSUSEMI_CRAWLER_USER_AGENT;
                 }
 
                 let bucketKey = utsusemi.bucketKey(path);

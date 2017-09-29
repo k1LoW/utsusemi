@@ -9,10 +9,9 @@ const Scraper = require('../src/lib/scraper');
 
 describe('scraper.scrapeHTML()', () => {
     let scraper;
-    let config;
     before((done) => {
-        config = {targetHost: 'https://example.com'};
-        scraper = new Scraper(config);
+        process.env.UTSUSEMI_TARGET_HOST = 'https://example.com';
+        scraper = new Scraper();
         done();
     });
     it ('<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">', () => {
@@ -40,10 +39,9 @@ describe('scraper.scrapeHTML()', () => {
 
 describe('scraper.scrapeCSS()', () => {
     let scraper;
-    let config;
     before((done) => {
-        config = {targetHost: 'https://example.com'};
-        scraper = new Scraper(config);
+        process.env.UTSUSEMI_TARGET_HOST = 'https://example.com';
+        scraper = new Scraper();
         done();
     });
     it ('Scrape valid CSS', () => {

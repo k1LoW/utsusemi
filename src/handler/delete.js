@@ -1,14 +1,11 @@
 'use strict';
 
 const logger = require('../lib/logger');
-const yaml = require('js-yaml');
-const fs = require('fs');
-const config = yaml.safeLoad(fs.readFileSync(__dirname + '/../../config.yml', 'utf8'));
-const aws = require('../lib/aws')(config);
+const aws = require('../lib/aws')();
 const s3 = aws.s3;
-const bucketName = config.bucketName;
+const bucketName = process.env.UTSUSEMI_BUCKET_NAME;
 const Utsusemi = require('../lib/utsusemi');
-const utsusemi = new Utsusemi(config);
+const utsusemi = new Utsusemi();
 
 module.exports.handler = (event, context, cb) => {
     const prefix = event.queryStringParameters && event.queryStringParameters.hasOwnProperty('prefix') ? event.queryStringParameters.prefix : null;
