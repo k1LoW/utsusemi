@@ -42,6 +42,12 @@ provider:
 
 plugins:
   - utsusemi-env-checker
+  - serverless-s3-remover
+
+custom:
+  remover:
+    buckets:
+      - "${self:provider.environment.UTSUSEMI_BUCKET_NAME}"
 
 package:
   include:
