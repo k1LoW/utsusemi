@@ -46,7 +46,6 @@ plugins:
 package:
   include:
     - package.json
-    - serverless.yml
     - src/**
   exclude:
     - .git/**

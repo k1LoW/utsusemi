@@ -1,23 +1,17 @@
 'use strict';
 
 const logger = require('./logger');
-const yaml = require('js-yaml');
 const fs = require('fs');
 const packageInfo = JSON.parse(fs.readFileSync(__dirname + '/../../package.json', 'utf8'));
-const serverlessConfig = yaml.safeLoad(fs.readFileSync(__dirname + '/../../serverless.yml', 'utf8'));
 const moment = require('moment');
 const aws = require('./aws')();
 const s3 = aws.s3;
 const lambda = aws.lambda;
 const sqs = aws.sqs;
-const s3workerFunctionName = serverlessConfig.functions.s3worker.name
-      .replace('${self:service}', serverlessConfig.service)
-      .replace('${self:provider.stage}', serverlessConfig.provider.stage);
+const s3workerFunctionName = `${process.env.UTSUSEMI_SERVICE}-${process.env.UTSUSEMI_STAGE}-s3worker`;
 const targetHost = process.env.UTSUSEMI_TARGET_HOST;
 const bucketName = process.env.UTSUSEMI_BUCKET_NAME;
-const queueName = serverlessConfig.resources.Resources.Channel.Properties.QueueName
-      .replace('${self:service}', serverlessConfig.service)
-      .replace('${self:provider.stage}', serverlessConfig.provider.stage);
+const queueName = `${process.env.UTSUSEMI_SERVICE}-${process.env.UTSUSEMI_STAGE}-Channel`;
 const request = require('request-promise-native');
 const querystring = require('querystring');
 const Scraper = require('./scraper');

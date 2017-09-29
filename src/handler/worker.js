@@ -1,18 +1,11 @@
 'use strict';
 
 const logger = require('../lib/logger');
-const yaml = require('js-yaml');
-const fs = require('fs');
-const serverlessConfig = yaml.safeLoad(fs.readFileSync(__dirname + '/../../serverless.yml', 'utf8'));
 const aws = require('../lib/aws')();
 const lambda = aws.lambda;
 const sqs = aws.sqs;
-const workerFunctionName = serverlessConfig.functions.worker.name
-      .replace('${self:service}', serverlessConfig.service)
-      .replace('${self:provider.stage}', serverlessConfig.provider.stage);
-const queueName = serverlessConfig.resources.Resources.Channel.Properties.QueueName
-      .replace('${self:service}', serverlessConfig.service)
-      .replace('${self:provider.stage}', serverlessConfig.provider.stage);
+const workerFunctionName = `${process.env.UTSUSEMI_SERVICE}-${process.env.UTSUSEMI_STAGE}-worker`;
+const queueName = `${process.env.UTSUSEMI_SERVICE}-${process.env.UTSUSEMI_STAGE}-Channel`;
 const crawler = require('../lib/crawler');
 const sleep = require('sleep-promise');
 
