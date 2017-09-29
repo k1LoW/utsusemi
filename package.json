@@ -1,6 +1,6 @@
 {
   "name": "utsusemi",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "A tool to generate a static website by crawling the original site.",
   "main": "index.js",
   "scripts": {
