@@ -15,6 +15,8 @@ workerDelay: 100
 threadsPerWorker: 1
 # Change http://example.com/path/to -> http://example.com/path/to/
 forceTrailingSlash: 1
+# Create link with Query String
+withQueryString: 0
 # Use API Key when request utsusemi API
 useApiKey: 0
 # Crawler User Agent
