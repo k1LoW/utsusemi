@@ -20,6 +20,7 @@ const Utsusemi = require('./utsusemi');
 const utsusemi = new Utsusemi();
 const jschardet = require('jschardet');
 const iconv = require('iconv-lite');
+const sha256 = require('js-sha256');
 
 const crawler = {
     walk: (path, depth, uuid, force) => {
@@ -384,7 +385,7 @@ const crawler = {
     enqueue: (path, depth, uuid, queueUrl, filtered, force = false) => {
         let queues = [];
         filtered.forEach((path) => {
-            const cache = `/tmp/${utsusemi.path(path).replace(/\//g, '__dir__')}-${(depth - 1)}-${uuid}`;
+            const cache = `/tmp/${sha256(utsusemi.path(path))}-${(depth - 1)}-${uuid}`;
             if (crawler.isFileExist(cache)) {
                 // Cache hit
                 logger.debug('Cache hit: ' + path);
