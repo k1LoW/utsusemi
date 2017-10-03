@@ -10,6 +10,8 @@ describe('utsusemi.path()', () => {
     let utsusemi;
     before((done) => {
         process.env.UTSUSEMI_TARGET_HOST = 'https://example.com';
+        process.env.UTSUSEMI_FORCE_TRAILING_SLASH = '0';
+        process.env.UTSUSEMI_WITH_QUERY_STRING = '0';
         utsusemi = new Utsusemi();
         done();
     });
@@ -37,6 +39,8 @@ describe('utsusemi.realPath()', () => {
     let utsusemi;
     before((done) => {
         process.env.UTSUSEMI_TARGET_HOST = 'https://example.com';
+        process.env.UTSUSEMI_FORCE_TRAILING_SLASH = '0';
+        process.env.UTSUSEMI_WITH_QUERY_STRING = '0';
         utsusemi = new Utsusemi();
         done();
     });
@@ -58,6 +62,8 @@ describe('utsusemi.bucketKey()', () => {
     let utsusemi;
     before((done) => {
         process.env.UTSUSEMI_TARGET_HOST = 'https://example.com';
+        process.env.UTSUSEMI_FORCE_TRAILING_SLASH = '0';
+        process.env.UTSUSEMI_WITH_QUERY_STRING = '0';
         utsusemi = new Utsusemi();
         done();
     });
@@ -67,7 +73,7 @@ describe('utsusemi.bucketKey()', () => {
         assert(utsusemi.bucketKey('/work') === 'work');
         assert(utsusemi.bucketKey('/img/logo.png') === 'img/logo.png');
     });
-    it ('if path have querystring, return S3 object key path using utsusemiPath', () => {
+    it ('if path have querystring, return S3 object key path using utsusemi.path()', () => {
         assert(utsusemi.bucketKey('/?page=3') === '-utsusemi-7b2270616765223a2233227d');
         assert(utsusemi.bucketKey('/work/?page=3') === 'work/-utsusemi-7b2270616765223a2233227d');
         assert(utsusemi.bucketKey('/work?page=3') === 'work-utsusemi-7b2270616765223a2233227d');
@@ -80,6 +86,8 @@ describe('utsusemi.bucketPrefix', () => {
     let utsusemi;
     before((done) => {
         process.env.UTSUSEMI_TARGET_HOST = 'https://example.com';
+        process.env.UTSUSEMI_FORCE_TRAILING_SLASH = '0';
+        process.env.UTSUSEMI_WITH_QUERY_STRING = '0';
         utsusemi = new Utsusemi();
         done();
     });
@@ -89,7 +97,7 @@ describe('utsusemi.bucketPrefix', () => {
         assert(utsusemi.bucketPrefix('/work') === 'work');
         assert(utsusemi.bucketPrefix('/img/logo.png') === 'img/logo.png');
     });
-    it ('if prefix have querystring, bucketPrefix return S3 object key path using utsusemiPath', () => {
+    it ('if prefix have querystring, bucketPrefix return S3 object key path using utsusemi.path()', () => {
         assert(utsusemi.bucketPrefix('/?page=3') === '-utsusemi-7b2270616765223a2233227d');
         assert(utsusemi.bucketPrefix('/work/?page=3') === 'work/-utsusemi-7b2270616765223a2233227d');
         assert(utsusemi.bucketPrefix('/work?page=3') === 'work-utsusemi-7b2270616765223a2233227d');
@@ -98,21 +106,22 @@ describe('utsusemi.bucketPrefix', () => {
     });
 });
 
-describe('config.forceTrailingSlash = true', () => {
+describe('process.env.UTSUSEMI_FORCE_TRAILING_SLASH = \'1\'', () => {
     let utsusemi;
     before((done) => {
         process.env.UTSUSEMI_TARGET_HOST = 'https://example.com';
         process.env.UTSUSEMI_FORCE_TRAILING_SLASH = '1';
+        process.env.UTSUSEMI_WITH_QUERY_STRING = '0';
         utsusemi = new Utsusemi();
         done();
     });
-    it ('if forceTrailingSlash = true, utsusemi.path() return set trailing slash', () => {
+    it ('utsusemi.path() return set trailing slash', () => {
         assert(utsusemi.path('/work/') === '/work/');
         assert(utsusemi.path('/work') === '/work/');
         assert(utsusemi.path('/work/?page=3') === '/work/-utsusemi-7b2270616765223a2233227d');
         assert(utsusemi.path('/work?page=3') === '/work/-utsusemi-7b2270616765223a2233227d');
     });
-    it ('if forceTrailingSlash = true, utsusemi.realPath() return set trailing slash', () => {
+    it ('utsusemi.realPath() return set trailing slash', () => {
         assert(utsusemi.realPath('/work/') === '/work/');
         assert(utsusemi.realPath('/work') === '/work/');
         assert(utsusemi.realPath('/work/?page=3') === '/work/?page=3');
@@ -123,10 +132,39 @@ describe('config.forceTrailingSlash = true', () => {
     });
 });
 
+describe('process.env.UTSUSEMI_WITH_QUERY_STRING = \'1\'', () => {
+    let utsusemi;
+    before((done) => {
+        process.env.UTSUSEMI_TARGET_HOST = 'https://example.com';
+        process.env.UTSUSEMI_FORCE_TRAILING_SLASH = '0';
+        process.env.UTSUSEMI_WITH_QUERY_STRING = '1';
+        utsusemi = new Utsusemi();
+        done();
+    });
+    it ('if path have querystring, return utsusemi path with querystring', () => {
+        assert(utsusemi.path('/?page=3') === '/-utsusemi-7b2270616765223a2233227d?page=3');
+        assert(utsusemi.path('/work/?page=3') === '/work/-utsusemi-7b2270616765223a2233227d?page=3');
+        assert(utsusemi.path('/work?page=3') === '/work-utsusemi-7b2270616765223a2233227d?page=3');
+        assert(utsusemi.path('/img/logo.png?page=3') === '/img/logo-utsusemi-7b2270616765223a2233227d.png?page=3');
+    });
+    it ('utsusemi.realPath() return correct querystring', () => {
+        assert(utsusemi.realPath('/work/-utsusemi-7b2270616765223a2233227d?page=3') === '/work/?page=3');
+    });
+    it ('if path have querystring, return S3 object key path using utsusemi.path() but no querystring', () => {
+        assert(utsusemi.bucketKey('/?page=3') === '-utsusemi-7b2270616765223a2233227d');
+        assert(utsusemi.bucketKey('/work/?page=3') === 'work/-utsusemi-7b2270616765223a2233227d');
+        assert(utsusemi.bucketKey('/work?page=3') === 'work-utsusemi-7b2270616765223a2233227d');
+        assert(utsusemi.bucketKey('/work.html?page=3') === 'work-utsusemi-7b2270616765223a2233227d.html');
+        assert(utsusemi.bucketKey('/img/logo.png?page=3') === 'img/logo-utsusemi-7b2270616765223a2233227d.png');
+    });
+});
+
 describe('#hash', () => {
     let utsusemi;
     before((done) => {
         process.env.UTSUSEMI_TARGET_HOST = 'https://example.com';
+        process.env.UTSUSEMI_FORCE_TRAILING_SLASH = '0';
+        process.env.UTSUSEMI_WITH_QUERY_STRING = '0';
         utsusemi = new Utsusemi();
         done();
     });
