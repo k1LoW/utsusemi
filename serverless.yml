@@ -14,6 +14,7 @@ provider:
     UTSUSEMI_WORKER_DELAY: ${env:UTSUSEMI_WORKER_DELAY, file(./config.yml):workerDelay, '100'}
     UTSUSEMI_THREADS_PER_WORKER: ${env:UTSUSEMI_THREADS_PER_WORKER, file(./config.yml):threadsPerWorker, '1'}
     UTSUSEMI_FORCE_TRAILING_SLASH: ${env:UTSUSEMI_FORCE_TRAILING_SLASH, file(./config.yml):forceTrailingSlash, '1'}
+    UTSUSEMI_WITH_QUERY_STRING: ${env:UTSUSEMI_WITH_QUERY_STRING, file(./config.yml):withQueryString, '0'}
     UTSUSEMI_USE_API_KEY: ${env:UTSUSEMI_USE_API_KEY, file(./config.yml):useApiKey, '0'}
     UTSUSEMI_CRAWLER_USER_AGENT: ${env:UTSUSEMI_CRAWLER_USER_AGENT, file(./config.yml):crawlerUserAgent, ''}
   runtime: nodejs6.10
