@@ -15,7 +15,7 @@ provider:
     UTSUSEMI_THREADS_PER_WORKER: ${env:UTSUSEMI_THREADS_PER_WORKER, file(./config.yml):threadsPerWorker, '5'}
     UTSUSEMI_FORCE_TRAILING_SLASH: ${env:UTSUSEMI_FORCE_TRAILING_SLASH, file(./config.yml):forceTrailingSlash, '1'}
     UTSUSEMI_CRAWLER_USER_AGENT: ${env:UTSUSEMI_CRAWLER_USER_AGENT, file(./config.yml):crawlerUserAgent, ''}
-    UTSUSEMI_USE_API_KEY: ${env:UTSUSEMI_USE_API_KEY, file(./config.yml):useApiKey, ''}
+    UTSUSEMI_USE_API_KEY: ${env:UTSUSEMI_USE_API_KEY, file(./config.yml):useApiKey, '0'}
   runtime: nodejs6.10
   stage: ${self:provider.environment.UTSUSEMI_STAGE}
   region: ${self:provider.environment.UTSUSEMI_REGION}
@@ -44,6 +44,7 @@ provider:
 
 plugins:
   - utsusemi-env-checker
+  - utsusemi-use-api-key
   - serverless-s3-remover
 
 custom:
@@ -70,7 +71,7 @@ functions:
           path: /in
           method: get
           integration: lambda-proxy
-          private: ${self:provider.environment.UTSUSEMI_USE_API_KEY}
+          private: false
   purge:
     handler: src/handler/purge.handler
     events:
@@ -78,7 +79,7 @@ functions:
           path: /purge
           method: get
           integration: lambda-proxy
-          private: ${self:provider.environment.UTSUSEMI_USE_API_KEY}
+          private: false
   delete:
     handler: src/handler/delete.handler
     timeout: 30
@@ -88,7 +89,7 @@ functions:
           path: /delete
           method: get
           integration: lambda-proxy
-          private: ${self:provider.environment.UTSUSEMI_USE_API_KEY}
+          private: false
   status:
     handler: src/handler/status.handler
     events:
@@ -96,7 +97,7 @@ functions:
           path: /status
           method: get
           integration: lambda-proxy
-          private: ${self:provider.environment.UTSUSEMI_USE_API_KEY}
+          private: false
   nstarter:
     handler: src/handler/nstarter.handler
     events:
@@ -104,7 +105,7 @@ functions:
           path: /nin
           method: post
           integration: lambda-proxy
-          private: ${self:provider.environment.UTSUSEMI_USE_API_KEY}
+          private: false
   worker:
     handler: src/handler/worker.handler
     timeout: 15
