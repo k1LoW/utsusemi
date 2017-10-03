@@ -11,11 +11,11 @@ provider:
     UTSUSEMI_TARGET_HOST: ${env:UTSUSEMI_TARGET_HOST, file(./config.yml):targetHost}
     UTSUSEMI_BUCKET_NAME: ${env:UTSUSEMI_BUCKET_NAME, file(./config.yml):bucketName}
     UTSUSEMI_WORKER_PROCESS: ${env:UTSUSEMI_WORKER_PROCESS, file(./config.yml):workerProcess, '2'}
-    UTSUSEMI_WORKER_DELAY: ${env:UTSUSEMI_WORKER_DELAY, file(./config.yml):workerDelay, '2'}
-    UTSUSEMI_THREADS_PER_WORKER: ${env:UTSUSEMI_THREADS_PER_WORKER, file(./config.yml):threadsPerWorker, '5'}
+    UTSUSEMI_WORKER_DELAY: ${env:UTSUSEMI_WORKER_DELAY, file(./config.yml):workerDelay, '100'}
+    UTSUSEMI_THREADS_PER_WORKER: ${env:UTSUSEMI_THREADS_PER_WORKER, file(./config.yml):threadsPerWorker, '1'}
     UTSUSEMI_FORCE_TRAILING_SLASH: ${env:UTSUSEMI_FORCE_TRAILING_SLASH, file(./config.yml):forceTrailingSlash, '1'}
-    UTSUSEMI_CRAWLER_USER_AGENT: ${env:UTSUSEMI_CRAWLER_USER_AGENT, file(./config.yml):crawlerUserAgent, ''}
     UTSUSEMI_USE_API_KEY: ${env:UTSUSEMI_USE_API_KEY, file(./config.yml):useApiKey, '0'}
+    UTSUSEMI_CRAWLER_USER_AGENT: ${env:UTSUSEMI_CRAWLER_USER_AGENT, file(./config.yml):crawlerUserAgent, ''}
   runtime: nodejs6.10
   stage: ${self:provider.environment.UTSUSEMI_STAGE}
   region: ${self:provider.environment.UTSUSEMI_REGION}
