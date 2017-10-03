@@ -20,9 +20,15 @@ $ cd utsusemi
 $ npm install
 ```
 
-### :pencil: STEP 2. Edit config
+### :pencil: STEP 2. Set environment variables OR Edit config.yml
+
+Set environment variables.
+
+OR
 
 Copy [`config.example.yml`](config.example.yml) to `config.yml`. And edit.
+
+Environment / config.yml Document is [here](docs/env.md) :book: .
 
 ### :rocket: STEP 3. Deploy to AWS
 
@@ -34,8 +40,7 @@ And get endpoints URL and `UtsusemiWebsiteURL`
 
 #### :bomb: Destroy utsusemi
 
-1. Call API `/delete?path=/`
-2. Run following command.
+Run following command.
 
 ```console
 $ AWS_PROFILE=XXxxXXX npm run destroy
