@@ -41,7 +41,7 @@ provider:
       Action:
         - "sqs:*"
       Resource:
-        - '*'
+        - "arn:aws:sqs:${self:provider.region}:*:${self:service}-${self:provider.stage}-Channel"
 
 plugins:
   - utsusemi-env-checker
