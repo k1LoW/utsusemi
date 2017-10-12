@@ -1,0 +1,61 @@
+environment:
+  AWS_ACCESS_KEY_ID:
+    description: AWS Access Key ID
+    type: password
+  AWS_SECRET_ACCESS_KEY:
+    description: AWS Secret Access Key
+    type: password
+  UTSUSEMI_STAGE:
+    description: Stage
+    type: text
+    default: 'v0'
+  UTSUSEMI_SERVICE_NAME:
+    description: Service name
+    type: text
+    default: 'utsusemi'
+  UTSUSEMI_REGION:
+    description: AWS deploy region
+    type: text
+    default: 'ap-northeast-1'
+  UTSUSEMI_TARGET_HOST:
+    description: Crawl target host
+    type: text
+  UTSUSEMI_BUCKET_NAME:
+    description: Web site hosting S3 bucket name
+    type: text
+  UTSUSEMI_WORKER_PROCESS:
+    description: Crawl worker process
+    type: number
+    default: 2
+  UTSUSEMI_WORKER_DELAY:
+    description: Delay time when start worker (ms)
+    type: number
+    default: 100
+  UTSUSEMI_THREADS_PER_WORKER:
+    description: Crawl job threads per worker
+    type: number
+    default: 1
+  UTSUSEMI_FORCE_TRAILING_SLASH:
+    description: 'Change http://example.com/path/to -> http://example.com/path/to/'
+    type: select
+    default: '1'
+    options:
+      - '0'
+      - '1'
+  UTSUSEMI_WITH_QUERY_STRING:
+    description: Create link with Query String
+    type: select
+    default: '0'
+    options:
+      - '0'
+      - '1'
+  UTSUSEMI_USE_API_KEY:
+    description: Use API Key when request utsusemi API
+    type: select
+    default: '0'
+    options:
+      - '0'
+      - '1'
+  UTSUSEMI_CRAWLER_USER_AGENT:
+    description: Crawler User Agent
+    type: text
