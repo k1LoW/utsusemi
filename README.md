@@ -1,4 +1,4 @@
-# utsusemi [![Build Status](https://travis-ci.org/k1LoW/utsusemi.svg?branch=master)](https://travis-ci.org/k1LoW/utsusemi)
+# utsusemi [![Build Status](https://travis-ci.org/k1LoW/utsusemi.svg?branch=master)](https://travis-ci.org/k1LoW/utsusemi) [![slsdeploy](https://img.shields.io/badge/slsdeploy-ok-blue.svg)](j19ne68q26.execute-api.us-east-1.amazonaws.com/poc/k1LoW/utsusemi?branch=slsdeploy)
 
 ![logo](logo.png)
 
