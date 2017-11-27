@@ -35,6 +35,17 @@ describe('scraper.scrapeHTML()', () => {
             '/path/to/td.jpg'
         ].toString());
     });
+    it ('Scrape inline style', () => {
+        const htmlStr = '<section><div style="margin:2px;background:url(../img/logo.png);"><p style="padding:3px;background:url(img/back.jpg);">test</p></div></section>';
+        const path = '/path/to/';
+        const scraped = scraper.scrapeHTML(htmlStr, path);
+        assert(scraped[0].match('/path/img/logo.png'));
+        assert(scraped[0].match('/path/to/img/back.jpg'));
+        assert(scraped[1].toString() === [
+            '/path/img/logo.png',
+            '/path/to/img/back.jpg'
+        ].toString());
+    });
 });
 
 describe('scraper.scrapeCSS()', () => {
