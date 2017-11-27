@@ -54,7 +54,7 @@ class Scraper {
             const scraped = this.scrapeCSS(cssStr, path);
             attr.nodeValue = scraped[0];
             el.attributes.setNamedItem(attr);
-            links.push(scraped[1]);
+            links = links.concat(scraped[1]);
         });
 
         const filtered = links.filter(function(element, index, array) {
