@@ -48,6 +48,14 @@ class Scraper {
                 links.push(this.utsusemi.realPath(absolute));
             }
         });
+        document.querySelectorAll('[style]').forEach((el) => {
+            let attr = el.attributes.getNamedItem('style');
+            const cssStr = attr.nodeValue;
+            const scraped = this.scrapeCSS(cssStr, path);
+            attr.nodeValue = scraped[0];
+            el.attributes.setNamedItem(attr);
+            links.push(scraped[1]);
+        });
 
         const filtered = links.filter(function(element, index, array) {
             return array.indexOf(element) === index && element !== path;
