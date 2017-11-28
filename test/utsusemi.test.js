@@ -194,22 +194,22 @@ describe('process.env.UTSUSEMI_WITH_QUERY_STRING = \'1\'', () => {
     });
 });
 
-// describe('#hash', () => {
-//     let utsusemi;
-//     before((done) => {
-//         process.env.UTSUSEMI_TARGET_HOST = 'https://example.com';
-//         process.env.UTSUSEMI_FORCE_TRAILING_SLASH = '0';
-//         process.env.UTSUSEMI_WITH_QUERY_STRING = '0';
-//         utsusemi = new Utsusemi();
-//         done();
-//     });
-//     it ('if path have #hash, return path() realPath() only set #hash', () => {
-//         assert(utsusemi.path('/#hash') === '/#hash');
-//         assert(utsusemi.realPath('/#hash') === '/#hash');
-//         assert(utsusemi.bucketKey('/#hash') === 'index.html');
-//         assert(utsusemi.bucketPrefix('/#hash') === '');
+describe('#hash', () => {
+    let utsusemi;
+    before((done) => {
+        process.env.UTSUSEMI_TARGET_HOST = 'https://example.com';
+        process.env.UTSUSEMI_FORCE_TRAILING_SLASH = '0';
+        process.env.UTSUSEMI_WITH_QUERY_STRING = '0';
+        utsusemi = new Utsusemi();
+        done();
+    });
+    it ('if path have #hash, return path() realPath() only set #hash', () => {
+        assert(utsusemi.path('/#hash') === '/#hash');
+        assert(utsusemi.realPath('/#hash') === '/#hash');
+        assert(utsusemi.bucketKey('/#hash') === 'index.html');
+        assert(utsusemi.bucketPrefix('/#hash') === '');
 
-//         assert(utsusemi.path('/work/?page=3#hash') === '/work/-utsusemi-7b2270616765223a2233227d#hash');
-//         assert(utsusemi.realPath('/work/-utsusemi-7b2270616765223a2233227d#hash') === '/work/?page=3#hash');
-//     });
-// });
+        assert(utsusemi.path('/work/?page=3#hash') === '/work/-utsusemi-7b2270616765223a2233227d#hash');
+        assert(utsusemi.realPath('/work/-utsusemi-7b2270616765223a2233227d#hash') === '/work/?page=3#hash');
+    });
+});

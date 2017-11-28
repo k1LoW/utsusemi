@@ -36,7 +36,7 @@ describe('scraper.scrapeHTML()', () => {
         ].toString());
     });
     it ('Scrape inline style', () => {
-        const htmlStr = '<section><img src="status.png"><div style="margin:2px;background:url(../img/logo.png);"><p style="padding:3px;background:url(img/back.jpg);">test</p></div></section>';
+        const htmlStr = '<section><img src="status.png"><div style="margin:2px;background-image:url(../img/logo.png);"><p style="padding:3px;background:url(img/back.jpg);">test</p></div></section>';
         const path = '/path/to/';
         const scraped = scraper.scrapeHTML(htmlStr, path);
         assert(scraped[0].match('/path/to/status.png'));
