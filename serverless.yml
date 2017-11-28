@@ -50,6 +50,7 @@ plugins:
 
 custom:
   remover:
+    prompt: true
     buckets:
       - "${self:provider.environment.UTSUSEMI_BUCKET_NAME}"
 

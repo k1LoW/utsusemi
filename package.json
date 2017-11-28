@@ -29,7 +29,7 @@
     "request": "^2.81.0",
     "request-promise-native": "^1.0.4",
     "serverless": "^1.23.0",
-    "serverless-s3-remover": "^0.2.0",
+    "serverless-s3-remover": "^0.4.0",
     "sleep-promise": "^2.0.0",
     "uuid": "^3.0.1",
     "winston": "^2.3.1"
