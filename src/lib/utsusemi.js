@@ -7,7 +7,7 @@ const separator = '-utsusemi-';
 
 class Utsusemi {
     path(path) {
-        path = path.replace(/\/\//g, '/');
+        path = this.fixSlash(path.replace(/\/\//g, '/'));
         const parsed = url.parse(path, true, true);
         const hash = parsed.hash ? parsed.hash : '';
         const search = parsed.search ? parsed.search : '';
@@ -17,10 +17,10 @@ class Utsusemi {
             ext = pathArray.pop();
         }
         if (!path.match(/\?/) || path.match(separator)) {
-            return this.fixSlash(path) + hash;
+            return path + hash;
         }
         const hex = new Buffer(JSON.stringify(parsed.query), 'utf8').toString('hex');
-        let utsusemiPath = this.fixSlash(pathArray.join('.')) + separator + hex;
+        let utsusemiPath = pathArray.join('.') + separator + hex;
         let suffix = hash;
         if (Number(process.env.UTSUSEMI_WITH_QUERY_STRING)) {
             suffix = search + hash;
@@ -32,6 +32,7 @@ class Utsusemi {
     }
 
     realPath(utsusemiPath) {
+        utsusemiPath = this.fixSlash(utsusemiPath);
         const parsed = url.parse(utsusemiPath, true, true);
         const hash = parsed.hash ? parsed.hash : '';
         const search = parsed.search ? parsed.search : '';
@@ -41,13 +42,13 @@ class Utsusemi {
             ext = pathArray.pop();
         }
         if (!utsusemiPath.match(separator)) {
-            return this.fixSlash(utsusemiPath).replace(/=$/, '').replace(/=&/, '&') + hash;
+            return utsusemiPath.replace(/=$/, '').replace(/=([&#])/, '$1');
         }
         let utsusemiPathFront = pathArray.join('.');
         let splitted = utsusemiPathFront.split(separator);
-        const query = JSON.parse(new Buffer(splitted[1], 'hex').toString('utf8'));
-        let path = this.fixSlash(splitted[0]);
-        const qs = querystring.stringify(query).replace(/=$/, '').replace(/=&/, '&');
+        const query = JSON.parse(new Buffer(splitted[1].replace(/\//, ''), 'hex').toString('utf8'));
+        let path = splitted[0];
+        const qs = querystring.stringify(query).replace(/=$/, '').replace(/=([&#])/, '$1');
         if (!ext) {
             return path + '?' + qs + hash;
         }
@@ -123,6 +124,7 @@ class Utsusemi {
 
     fixSlash(path) {
         const parsed = url.parse(path, true, true);
+        const hash = parsed.hash ? parsed.hash : '';
         let pathArray = parsed.pathname.split('.');
         let ext = null;
         if (pathArray.length > 1) {
@@ -139,7 +141,7 @@ class Utsusemi {
         if (path.match(/\?/)) {
             fixed = fixed + '?' + querystring.stringify(parsed.query);
         }
-        return fixed.replace(/\/\//g, '/');
+        return fixed.replace(/\/\//g, '/') + hash;
     }
 }
 
