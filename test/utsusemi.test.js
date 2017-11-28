@@ -25,7 +25,9 @@ describe('utsusemi.path()', () => {
         assert(utsusemi.path('/?page=3') === '/-utsusemi-7b2270616765223a2233227d');
         assert(utsusemi.path('/work/?page=3') === '/work/-utsusemi-7b2270616765223a2233227d');
         assert(utsusemi.path('/work?page=3') === '/work-utsusemi-7b2270616765223a2233227d');
+        assert(utsusemi.path('/work?page=3&limit=10') === '/work-utsusemi-7b2270616765223a2233222c226c696d6974223a223130227d');
         assert(utsusemi.path('/img/logo.png?page=3') === '/img/logo-utsusemi-7b2270616765223a2233227d.png');
+        assert(utsusemi.path('/assets/fonts/icomoon/icomoon.eot?mtxlfj#hash') === '/assets/fonts/icomoon/icomoon-utsusemi-7b226d74786c666a223a22227d.eot#hash');
     });
     it ('if path have double slash, return single slash', () => {
         assert(utsusemi.path('//') === '/');
@@ -49,12 +51,15 @@ describe('utsusemi.realPath()', () => {
         assert(utsusemi.realPath('/work/') === '/work/');
         assert(utsusemi.realPath('/work') === '/work');
         assert(utsusemi.realPath('/img/logo.png') === '/img/logo.png');
+        assert(utsusemi.realPath('/path/to/icomoon/icomoon.eot?mtxlfj#iefix') === '/path/to/icomoon/icomoon.eot?mtxlfj#iefix');
     });
     it ('if path have `-utsusemi-` separator, return real path', () => {
         assert(utsusemi.realPath('/-utsusemi-7b2270616765223a2233227d') === '/?page=3');
         assert(utsusemi.realPath('/work/-utsusemi-7b2270616765223a2233227d') === '/work/?page=3');
         assert(utsusemi.realPath('/work-utsusemi-7b2270616765223a2233227d') === '/work?page=3');
+        assert(utsusemi.realPath('/work-utsusemi-7b2270616765223a2233222c226c696d6974223a223130227d') === '/work?page=3&limit=10');
         assert(utsusemi.realPath('/img/logo-utsusemi-7b2270616765223a2233227d.png') === '/img/logo.png?page=3');
+        assert(utsusemi.realPath('/assets/fonts/icomoon/icomoon-utsusemi-7b226d74786c666a223a22227d.eot#hash') === '/assets/fonts/icomoon/icomoon.eot?mtxlfj#hash');
     });
 });
 

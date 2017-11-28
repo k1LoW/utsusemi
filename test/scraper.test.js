@@ -102,6 +102,18 @@ describe('scraper.scrapeCSS()', () => {
             '/webfont.svg#svgFontName'
         ].toString());
     });
+    it ('Scrape inline CSS', () => {
+        const cssStr = '@font-face { src: url("/path/to/icomoon/icomoon.eot?mtxlfj#iefix") format("embedded-opentype"), url("/path/to/icomoon/icomoon.ttf?mtxlfj") format("truetype"), url("/path/to/icomoon/icomoon.woff?mtxlfj") format("woff"), url("/path/to/icomoon/icomoon.svg?mtxlfj#icomoon") format("svg"); }';
+        const path = '/path/to/';
+        const scraped = scraper.scrapeCSS(cssStr, path);
+        assert(scraped[0].match('/path/to/icomoon/icomoon-utsusemi-7b226d74786c666a223a22227d.eot#iefix'));
+        assert(scraped[1].toString() === [
+            '/path/to/icomoon/icomoon.eot?mtxlfj#iefix',
+            '/path/to/icomoon/icomoon.ttf?mtxlfj',
+            '/path/to/icomoon/icomoon.woff?mtxlfj',
+            '/path/to/icomoon/icomoon.svg?mtxlfj#icomoon'
+        ].toString());
+    });
     it ('Scrape invalid CSS', () => {
         const cssStr = fs.readFileSync(__dirname + '/fixtures/invalid.css', 'utf8');
         const path = '/path/to/';
@@ -145,7 +157,7 @@ describe('scraper.scrapeCSS()', () => {
             '/path/webfont.woff2',
             '/path/webfont.woff',
             '/webfont.ttf',
-            '/webfont.svg#svgFontName'
+            '/webfont.svg#svgFontName',
         ].toString());
     });
 });

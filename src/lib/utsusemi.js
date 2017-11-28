@@ -41,16 +41,17 @@ class Utsusemi {
             ext = pathArray.pop();
         }
         if (!utsusemiPath.match(separator)) {
-            return this.fixSlash(utsusemiPath) + hash;
+            return this.fixSlash(utsusemiPath).replace(/=$/, '').replace(/=&/, '&') + hash;
         }
         let utsusemiPathFront = pathArray.join('.');
         let splitted = utsusemiPathFront.split(separator);
         const query = JSON.parse(new Buffer(splitted[1], 'hex').toString('utf8'));
         let path = this.fixSlash(splitted[0]);
+        const qs = querystring.stringify(query).replace(/=$/, '').replace(/=&/, '&');
         if (!ext) {
-            return path + '?' + querystring.stringify(query) + hash;
+            return path + '?' + qs + hash;
         }
-        return path + '.' + ext + '?' + querystring.stringify(query) + hash;
+        return path + '.' + ext + '?' + qs + hash;
     }
 
     bucketKey(path) {
