@@ -17,7 +17,7 @@ class Utsusemi {
             ext = pathArray.pop();
         }
         if (!path.match(/\?/) || path.match(separator)) {
-            return path + hash;
+            return path;
         }
         const hex = new Buffer(JSON.stringify(parsed.query), 'utf8').toString('hex');
         let utsusemiPath = pathArray.join('.') + separator + hex;
